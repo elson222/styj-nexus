@@ -3,40 +3,38 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="STY. J Tech Hub — Premium iPhones from iPhone X to 16 Pro Max, Laptops, Apple Watches & Accessories in Ghana. Fast delivery. Call 0553714373."/>
-  <meta name="theme-color" content="#08080e"/>
-  <meta property="og:title" content="STY. J Nexus — Ghana's Tech Hub"/>
-  <meta property="og:description" content="Shop authentic iPhones, MacBooks, Apple Watches & Accessories. Fast delivery across Ghana."/>
-  <meta property="og:url" content="https://styj.nexus"/>
-  <title>STY. J Nexus — iPhones, Laptops & Accessories</title>
+  <meta name="theme-color" content="#ffffff"/>
+  <title>STY. J Nexus — Premium iPhones, Laptops &amp; Apple Gear in Ghana</title>
+  <meta name="description" content="Shop authentic iPhones (iPhone X through 17 Pro Max), MacBooks, Windows Laptops &amp; accessories in Ghana at best prices. Fast nationwide delivery &amp; verified quality."/>
   <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml"/>
   <link rel="stylesheet" href="assets/css/main.css"/>
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-  <!-- ── Navbar ── -->
-  <nav class="navbar" role="navigation" aria-label="Main navigation">
+  <!-- ── Navigation ── -->
+  <nav class="navbar" role="navigation" aria-label="Main Navigation">
     <div class="navbar__inner">
-      <a href="index.html" class="navbar__logo" aria-label="STY. J Nexus Home">
+      <a href="index.html" class="navbar__logo">
         <span class="navbar__logo-text">STY.J <span>NEXUS</span></span>
       </a>
-
-      <nav class="navbar__nav" aria-label="Desktop navigation">
+      <div class="navbar__nav">
         <a href="products/iphones.html">iPhones</a>
         <a href="products/laptops.html">Laptops</a>
         <a href="products/watches.html">Apple Watch</a>
         <a href="products/accessories.html">Accessories</a>
-      </nav>
-
+      </div>
       <div class="navbar__actions">
-        <a href="cart.html" class="cart-btn" aria-label="Shopping bag">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-          <span class="cart-badge" aria-live="polite" aria-label="Items in cart"></span>
+        <a href="cart.html" class="cart-btn" aria-label="Shopping Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="cart-badge"></span>
         </a>
-        <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation menu">
           <span></span><span></span><span></span>
         </button>
       </div>
@@ -44,290 +42,208 @@
   </nav>
 
   <!-- Mobile Drawer -->
-  <div class="mobile-drawer" id="mobile-drawer" role="dialog" aria-label="Mobile navigation">
-    <a href="products/iphones.html">iPhones (X to 16 Pro Max)</a>
-    <a href="products/laptops.html">Laptops (MacBook & PC)</a>
-    <a href="products/watches.html">Apple Watch</a>
-    <a href="products/accessories.html">Accessories</a>
-    <a href="cart.html">Shopping Cart</a>
-    <a href="tel:0553714373" style="color:var(--clr-blue);margin-top:0.5rem;font-weight:600;">Call 055 371 4373</a>
+  <div class="mobile-drawer" id="mobile-drawer">
+    <a href="products/iphones.html">iPhones (X to 17 Pro Max) <span>&rarr;</span></a>
+    <a href="products/laptops.html">Laptops &amp; MacBooks <span>&rarr;</span></a>
+    <a href="products/watches.html">Apple Watch <span>&rarr;</span></a>
+    <a href="products/accessories.html">Accessories <span>&rarr;</span></a>
+    <a href="cart.html">View Cart <span>&rarr;</span></a>
+    <a href="tel:0553714373" style="color:var(--clr-blue);margin-top:0.5rem;font-weight:700;">Direct Hotline: 055 371 4373</a>
   </div>
 
   <!-- ── Hero ── -->
-  <section class="hero" aria-label="Hero section">
-    <div class="container" style="width:100%;max-width:1200px;margin:0 auto;padding:0 1rem;">
-      <div class="hero__content">
-        <div class="hero__eyebrow">
-          <span class="badge badge-blue">Ghana's Tech Hub</span>
-          <span class="badge badge-green" style="margin-left:0.5rem;">Authentic & Certified</span>
-        </div>
-        <h1 class="hero__title">
-          Premium Tech,<br/>
-          <span class="highlight">Ghanaian Prices.</span>
-        </h1>
-        <p class="hero__subtitle">
-          iPhones from iPhone X to 16 Pro Max, MacBooks, Apple Watches & authentic accessories — tested, certified, and delivered safely to you.
-        </p>
-        <div class="hero__cta">
-          <a href="products/iphones.html" class="btn btn-primary btn-lg">Explore iPhones</a>
-          <a href="tel:0553714373" class="btn btn-glass btn-lg">Call 055 371 4373</a>
-        </div>
-        <!-- Mobile hero phone image (transparent Apple CDN PNG) -->
-        <img class="hero__phone-mobile"
-             src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-16-pro-finish-select-202409-6-9inch-deserttitanium?wid=800&hei=800&fmt=png-alpha"
-             alt="iPhone 16 Pro Max"
-             loading="eager"
-             fetchpriority="high"/>
+  <section class="hero" aria-label="Store Hero">
+    <div class="container">
+      <div class="hero__eyebrow">
+        <span>Authentic Tech</span> &bull; <span>Best Rates in Ghana</span>
       </div>
-      <!-- Desktop hero image (transparent Apple CDN PNG) -->
-      <img class="hero__image"
-           src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-16-pro-finish-select-202409-6-9inch-deserttitanium?wid=1000&hei=1000&fmt=png-alpha"
+      <h1 class="hero__title">
+        Premium Tech.<br/>
+        <span class="highlight">Ghanaian Prices.</span>
+      </h1>
+      <p class="hero__subtitle">
+        Official iPhones from iPhone X to 17 Pro Max, MacBooks, Windows Laptops, and genuine Apple gear — fully inspected, factory certified, and safely delivered nationwide.
+      </p>
+      <div class="hero__cta">
+        <a href="products/iphones.html" class="btn btn-primary btn-lg">Explore iPhones</a>
+        <a href="products/laptops.html" class="btn btn-secondary btn-lg">View Laptops</a>
+      </div>
+      <!-- Clean Hero Phone Image (blends into white backdrop) -->
+      <img class="hero__phone-mobile"
+           src="assets/images/products/iphone-16-pro-max.png"
            alt="iPhone 16 Pro Max Desert Titanium"
            loading="eager"
            fetchpriority="high"
-           aria-hidden="true"/>
-      <div class="hero__scroll-hint" aria-hidden="true">
-        <span>Scroll to explore</span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 5v14M5 12l7 7 7-7"/>
-        </svg>
-      </div>
+           decoding="async"/>
     </div>
   </section>
 
   <!-- ── Trust Bar ── -->
-  <section style="padding:1.5rem 0;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);">
+  <section class="trust-bar">
     <div class="container">
-      <div style="display:flex;gap:2.5rem;overflow-x:auto;justify-content:center;align-items:center;scrollbar-width:none;padding:0.25rem 0;">
-        <div style="display:flex;align-items:center;gap:0.6rem;flex-shrink:0;font-size:0.85rem;color:var(--clr-text-2);">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--clr-blue);"></span>
-          100% Authentic Devices
+      <div class="trust-bar__inner">
+        <div class="trust-item">
+          <span class="trust-item__title">100% Genuine Gear</span>
+          <span class="trust-item__sub">Verified IMEIs &amp; Factory Certified</span>
         </div>
-        <div style="display:flex;align-items:center;gap:0.6rem;flex-shrink:0;font-size:0.85rem;color:var(--clr-text-2);">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--clr-green);"></span>
-          Nationwide Delivery
+        <div class="trust-item">
+          <span class="trust-item__title">Nationwide Delivery</span>
+          <span class="trust-item__sub">Accra, Kumasi &amp; All Regions</span>
         </div>
-        <div style="display:flex;align-items:center;gap:0.6rem;flex-shrink:0;font-size:0.85rem;color:var(--clr-text-2);">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--clr-gold);"></span>
-          Best Competitive Rates
+        <div class="trust-item">
+          <span class="trust-item__title">Competitive GHS Prices</span>
+          <span class="trust-item__sub">Direct Sourcing Value</span>
         </div>
-        <div style="display:flex;align-items:center;gap:0.6rem;flex-shrink:0;font-size:0.85rem;color:var(--clr-text-2);">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#25D366;"></span>
-          Direct WhatsApp Support
-        </div>
-        <div style="display:flex;align-items:center;gap:0.6rem;flex-shrink:0;font-size:0.85rem;color:var(--clr-text-2);">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--clr-blue);"></span>
-          055 371 4373
+        <div class="trust-item">
+          <span class="trust-item__title">Verified Support</span>
+          <span class="trust-item__sub">055 371 4373 Direct Call</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── Categories ── -->
-  <section class="section" aria-labelledby="categories-heading">
+  <!-- ── Explore Collections ── -->
+  <section class="section" aria-labelledby="collections-heading">
     <div class="container">
-      <div class="section__header reveal">
+      <div class="section__header">
         <span class="section__eyebrow">Browse by Category</span>
-        <h2 class="section__title" id="categories-heading">Explore Collections</h2>
+        <h2 class="section__title" id="collections-heading">Explore Collections</h2>
+        <p class="section__sub">Explore handpicked flagship smartphones, laptops, and original accessories.</p>
       </div>
-      <div class="category-grid">
-        <a href="products/iphones.html" class="category-card category-card--phones reveal reveal-delay-1" aria-label="Shop iPhones">
-          <div class="category-card__bg"></div>
-          <div class="category-card__content">
-            <span class="category-card__tag">Smartphones</span>
-            <div>
-              <div class="category-card__name">iPhones</div>
-              <div class="category-card__count">iPhone X through 16 Pro Max</div>
-              <div class="category-card__link">View All &rarr;</div>
-            </div>
+
+      <div class="categories-grid">
+        <a href="products/iphones.html" class="category-card" aria-label="iPhones">
+          <span class="category-card__tag">Smartphones</span>
+          <div>
+            <div class="category-card__name">iPhones</div>
+            <div class="category-card__desc">iPhone X to 17 Pro Max</div>
           </div>
+          <span class="category-card__arrow">View Lineup &rarr;</span>
         </a>
-        <a href="products/laptops.html" class="category-card category-card--laptops reveal reveal-delay-2" aria-label="Shop Laptops">
-          <div class="category-card__bg"></div>
-          <div class="category-card__content">
-            <span class="category-card__tag">Computers</span>
-            <div>
-              <div class="category-card__name">Laptops</div>
-              <div class="category-card__count">MacBook Pro, Air & Windows</div>
-              <div class="category-card__link">View All &rarr;</div>
-            </div>
+
+        <a href="products/laptops.html" class="category-card" aria-label="Laptops">
+          <span class="category-card__tag">Computers</span>
+          <div>
+            <div class="category-card__name">Laptops</div>
+            <div class="category-card__desc">MacBook, HP, Dell &amp; Asus</div>
           </div>
+          <span class="category-card__arrow">View Lineup &rarr;</span>
         </a>
-        <a href="products/watches.html" class="category-card category-card--watches reveal reveal-delay-3" aria-label="Shop Apple Watches">
-          <div class="category-card__bg"></div>
-          <div class="category-card__content">
-            <span class="category-card__tag">Wearables</span>
-            <div>
-              <div class="category-card__name">Apple Watch</div>
-              <div class="category-card__count">Ultra 2, Series 10 & SE</div>
-              <div class="category-card__link">View All &rarr;</div>
-            </div>
+
+        <a href="products/watches.html" class="category-card" aria-label="Apple Watches">
+          <span class="category-card__tag">Wearables</span>
+          <div>
+            <div class="category-card__name">Apple Watch</div>
+            <div class="category-card__desc">Ultra 2, Series 10 &amp; SE</div>
           </div>
+          <span class="category-card__arrow">View Lineup &rarr;</span>
         </a>
-        <a href="products/accessories.html" class="category-card category-card--accessories reveal reveal-delay-4" aria-label="Shop Accessories">
-          <div class="category-card__bg"></div>
-          <div class="category-card__content">
-            <span class="category-card__tag">Original Gear</span>
-            <div>
-              <div class="category-card__name">Accessories</div>
-              <div class="category-card__count">AirPods, MagSafe & Cases</div>
-              <div class="category-card__link">View All &rarr;</div>
-            </div>
+
+        <a href="products/accessories.html" class="category-card" aria-label="Accessories">
+          <span class="category-card__tag">Original Gear</span>
+          <div>
+            <div class="category-card__name">Accessories</div>
+            <div class="category-card__desc">AirPods, MagSafe &amp; Chargers</div>
           </div>
+          <span class="category-card__arrow">View Lineup &rarr;</span>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- ── Featured iPhones ── -->
-  <section class="section" style="padding-top:0;" aria-labelledby="iphones-heading">
+  <!-- ── Popular iPhones ── -->
+  <section class="section" style="padding-top:0;" aria-labelledby="featured-iphones-heading">
     <div class="container">
-      <div class="section__header reveal" style="display:flex;align-items:flex-end;justify-content:space-between;text-align:left;margin-bottom:1.5rem;">
+      <div class="section__header" style="display:flex;align-items:flex-end;justify-content:space-between;text-align:left;">
         <div>
-          <span class="section__eyebrow">Featured Lineup</span>
-          <h2 class="section__title" id="iphones-heading" style="margin-bottom:0;">Popular iPhones</h2>
+          <span class="section__eyebrow">Flagship Picks</span>
+          <h2 class="section__title" id="featured-iphones-heading">Popular iPhones</h2>
         </div>
-        <a href="products/iphones.html" class="btn btn-glass btn-sm" style="flex-shrink:0;">View All (X to 16 Pro Max) &rarr;</a>
+        <a href="products/iphones.html" class="btn btn-secondary" style="font-size:0.825rem;padding:6px 14px;">
+          View All iPhones &rarr;
+        </a>
       </div>
-      <div class="carousel-wrap">
-        <div class="carousel" id="home-iphones-carousel" role="list" aria-label="Featured iPhones"></div>
-      </div>
+
+      <div class="products-grid" id="home-iphones-grid"></div>
     </div>
   </section>
 
-  <!-- ── Featured Laptops ── -->
-  <section class="section" style="padding-top:0;" aria-labelledby="laptops-heading">
+  <!-- ── Laptops Section ── -->
+  <section class="section" style="padding-top:0;" aria-labelledby="featured-laptops-heading">
     <div class="container">
-      <div class="section__header reveal" style="display:flex;align-items:flex-end;justify-content:space-between;text-align:left;margin-bottom:1.5rem;">
+      <div class="section__header" style="display:flex;align-items:flex-end;justify-content:space-between;text-align:left;">
         <div>
-          <span class="section__eyebrow">High Performance</span>
-          <h2 class="section__title" id="laptops-heading" style="margin-bottom:0;">Laptops</h2>
+          <span class="section__eyebrow">Work &amp; Power</span>
+          <h2 class="section__title" id="featured-laptops-heading">Featured Laptops</h2>
         </div>
-        <a href="products/laptops.html" class="btn btn-glass btn-sm" style="flex-shrink:0;">View All &rarr;</a>
+        <a href="products/laptops.html" class="btn btn-secondary" style="font-size:0.825rem;padding:6px 14px;">
+          View All Laptops &rarr;
+        </a>
       </div>
-      <div class="carousel-wrap">
-        <div class="carousel" id="home-laptops-carousel" role="list" aria-label="Featured Laptops"></div>
-      </div>
+
+      <div class="products-grid" id="home-laptops-grid"></div>
     </div>
   </section>
 
-  <!-- ── Accessories Strip ── -->
-  <section class="section" style="padding-top:0;" aria-labelledby="acc-heading">
-    <div class="container">
-      <div class="section__header reveal" style="display:flex;align-items:flex-end;justify-content:space-between;text-align:left;margin-bottom:1.5rem;">
-        <div>
-          <span class="section__eyebrow">Essential Gear</span>
-          <h2 class="section__title" id="acc-heading" style="margin-bottom:0;">Original Accessories</h2>
-        </div>
-        <a href="products/accessories.html" class="btn btn-glass btn-sm" style="flex-shrink:0;">View All &rarr;</a>
-      </div>
-      <div class="accessories-strip" id="acc-strip" role="list" aria-label="Accessories"></div>
-    </div>
-  </section>
-
-  <!-- ── Why STY. J ── -->
-  <section class="section" aria-labelledby="features-heading">
-    <div class="container">
-      <div class="section__header reveal">
-        <span class="section__eyebrow">Trust & Reliability</span>
-        <h2 class="section__title" id="features-heading">The STY. J Advantage</h2>
-      </div>
-      <div class="features">
-        <div class="feature-card reveal reveal-delay-1">
-          <span class="feature-card__badge">Logistics</span>
-          <h3 class="feature-card__title">Swift Delivery</h3>
-          <p class="feature-card__text">Safe doorstep delivery across Greater Accra, Kumasi, Takoradi, Cape Coast and all regions.</p>
-        </div>
-        <div class="feature-card reveal reveal-delay-2">
-          <span class="feature-card__badge">Quality</span>
-          <h3 class="feature-card__title">100% Genuine</h3>
-          <p class="feature-card__text">Every unit is inspected and guaranteed authentic with clean IMEI and full functionality.</p>
-        </div>
-        <div class="feature-card reveal reveal-delay-3">
-          <span class="feature-card__badge">Pricing</span>
-          <h3 class="feature-card__title">Best Market Rates</h3>
-          <p class="feature-card__text">Direct sourcing ensures our customers get the most realistic and competitive pricing in Ghana.</p>
-        </div>
-        <div class="feature-card reveal reveal-delay-4">
-          <span class="feature-card__badge">Assistance</span>
-          <h3 class="feature-card__title">Direct WhatsApp</h3>
-          <p class="feature-card__text">Chat directly with the store owner for custom device requests, video inspections, and quick orders.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── CTA Banner ── -->
-  <section class="section" style="padding-top:0;">
-    <div class="container">
-      <div class="cta-banner reveal">
-        <h2 class="cta-banner__title">Ready to Upgrade?</h2>
-        <p class="cta-banner__sub">Browse our verified inventory or contact us directly to confirm availability and place your order.</p>
-        <div class="cta-banner__actions">
-          <a href="products/iphones.html" class="btn btn-primary btn-lg">Browse Store</a>
-          <a href="https://wa.me/233553714373?text=Hi%20STY.%20J%20Tech%20Hub!%20I%27d%20like%20to%20enquire%20about%20your%20products."
-             target="_blank" rel="noopener" class="btn btn-wa btn-lg">
-            Chat on WhatsApp
-          </a>
-          <a href="tel:0553714373" class="btn btn-glass btn-lg">Call 055 371 4373</a>
-        </div>
+  <!-- ── Bottom CTA ── -->
+  <section class="section" style="padding-top:1rem;background:var(--clr-bg-alt);">
+    <div class="container" style="text-align:center;max-width:600px;">
+      <h2 style="font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:0.75rem;">
+        Looking for a Specific Device?
+      </h2>
+      <p style="color:var(--clr-text-2);font-size:0.95rem;margin-bottom:1.75rem;">
+        We stock a wide variety of storage options, colors, and models not all listed online. Call our store team directly for immediate inquiries.
+      </p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+        <a href="products/iphones.html" class="btn btn-primary btn-lg">Explore Full Catalog</a>
+        <a href="tel:0553714373" class="btn btn-secondary btn-lg">Call 055 371 4373</a>
       </div>
     </div>
   </section>
 
   <!-- ── Footer ── -->
-  <footer class="footer" role="contentinfo">
+  <footer class="footer">
     <div class="container">
       <div class="footer__grid">
-        <div class="footer__brand">
-          <a href="index.html" class="navbar__logo" style="display:inline-flex;margin-bottom:0.75rem;">
-            <span class="navbar__logo-text" style="font-size:1.1rem;">STY.J <span>NEXUS</span></span>
+        <div>
+          <a href="index.html" class="navbar__logo" style="margin-bottom:0.75rem;">
+            <span class="navbar__logo-text">STY.J <span>NEXUS</span></span>
           </a>
-          <p>Ghana's trusted tech store for authentic iPhones, MacBooks, laptops, Apple Watches and original accessories.</p>
+          <p>Ghana's trusted tech hub for original iPhones, MacBooks, laptops, Apple Watches, and certified accessories.</p>
           <p style="margin-top:0.75rem;">
-            <a href="tel:0553714373" style="color:var(--clr-blue);font-weight:600;">Phone: 055 371 4373</a>
+            <a href="tel:0553714373" style="color:var(--clr-blue);font-weight:700;">Hotline: 055 371 4373</a>
           </p>
         </div>
-        <div>
-          <h3 class="footer__heading">Catalog</h3>
-          <ul class="footer__links">
-            <li><a href="products/iphones.html">iPhones (X to 16 Pro Max)</a></li>
-            <li><a href="products/laptops.html">Laptops & MacBooks</a></li>
+        <div class="footer__col">
+          <h4>Store Sections</h4>
+          <ul>
+            <li><a href="products/iphones.html">iPhones (X to 17 Pro Max)</a></li>
+            <li><a href="products/laptops.html">Laptops &amp; MacBooks</a></li>
             <li><a href="products/watches.html">Apple Watch</a></li>
-            <li><a href="products/accessories.html">Original Accessories</a></li>
+            <li><a href="products/accessories.html">Original Gear &amp; AirPods</a></li>
           </ul>
         </div>
-        <div>
-          <h3 class="footer__heading">Customer Care</h3>
-          <ul class="footer__links">
-            <li><a href="cart.html">View Cart</a></li>
-            <li><a href="checkout.html">Checkout & Order</a></li>
-            <li><a href="https://wa.me/233553714373" target="_blank" rel="noopener">WhatsApp Inquiries</a></li>
-            <li><a href="admin/index.html">Store Admin</a></li>
-          </ul>
-        </div>
-        <div>
-          <h3 class="footer__heading">Direct Contact</h3>
-          <ul class="footer__links">
-            <li><a href="tel:0553714373">055 371 4373</a></li>
-            <li><a href="https://wa.me/233553714373" target="_blank" rel="noopener">WhatsApp Direct</a></li>
-            <li><span style="color:var(--clr-text-2);">Nationwide Delivery Available</span></li>
+        <div class="footer__col">
+          <h4>Customer Service</h4>
+          <ul>
+            <li><a href="cart.html">Shopping Cart</a></li>
+            <li><a href="checkout.html">Direct Checkout</a></li>
+            <li><a href="admin/index.html">Store Admin Portal</a></li>
           </ul>
         </div>
       </div>
       <div class="footer__bottom">
-        <span>&copy; 2025 STY. J Tech Hub &middot; styj.nexus</span>
-        <span>Accra, Ghana</span>
+        &copy; 2026 STY. J Tech Hub &middot; styj.nexus &middot; Accra, Ghana
       </div>
     </div>
   </footer>
 
   <!-- ── Floating WhatsApp Button ── -->
   <a class="fab-wa"
-     href="https://wa.me/233553714373?text=Hi%20STY.%20J%20Tech%20Hub!%20I%27d%20like%20to%20enquire%20about%20your%20products."
+     href="https://wa.me/233553714373"
      target="_blank" rel="noopener"
-     aria-label="Chat on WhatsApp">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+     aria-label="WhatsApp Support">
+    <svg viewBox="0 0 24 24">
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884zm8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
     </svg>
   </a>
@@ -343,11 +259,20 @@
       appId: "1:1008828465224:web:f87f7b03e642cda4ba987d",
       measurementId: "G-WJS97K0NL4"
     };
-    if (typeof firebase !== 'undefined') {
-      firebase.initializeApp(firebaseConfig);
-    }
+    if (typeof firebase !== 'undefined') firebase.initializeApp(firebaseConfig);
   </script>
   <script src="assets/js/products.js"></script>
   <script src="assets/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Render 4 top featured iPhones
+      const featuredIphones = PRODUCTS.iphones.slice(0, 4);
+      renderProductsGrid('home-iphones-grid', featuredIphones);
+
+      // Render 4 top featured laptops
+      const featuredLaptops = PRODUCTS.laptops.slice(0, 4);
+      renderProductsGrid('home-laptops-grid', featuredLaptops);
+    });
+  </script>
 </body>
 </html>

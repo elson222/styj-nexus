@@ -1,7 +1,15 @@
 /**
  * STY. J NEXUS — App Logic
- * Cart management, animations, toasts, UI interactions
+ * Apple Clean White | Mobile-First | styj.nexus
  */
+
+/* ── Asset URL Helper ─────────────────────────────────────── */
+function resolveAsset(path) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  const isSub = window.location.pathname.includes('/products/');
+  return (isSub ? '../' : '') + path;
+}
 
 /* ── Cart State ───────────────────────────────────────────── */
 const Cart = (() => {
@@ -40,8 +48,8 @@ const Cart = (() => {
         name:     product.name,
         variant,
         price,
-        image:    product.image,
-        imageFallback: product.imageFallback,
+        image:    resolveAsset(product.image),
+        imageFallback: resolveAsset(product.imageFallback),
         qty,
       });
     }
@@ -75,7 +83,7 @@ function updateCartBadge() {
 }
 
 /* ── Toast Notifications ─────────────────────────────────── */
-function showToast(msg, duration = 2800) {
+function showToast(msg, duration = 2400) {
   let container = document.querySelector('.toast-container');
   if (!container) {
     container = document.createElement('div');
@@ -87,8 +95,10 @@ function showToast(msg, duration = 2800) {
   toast.textContent = msg;
   container.appendChild(toast);
   setTimeout(() => {
-    toast.classList.add('out');
-    toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
   }, duration);
 }
 
@@ -99,17 +109,12 @@ function initNavbar() {
   const toggle  = document.querySelector('.menu-toggle');
   const drawer  = document.querySelector('.mobile-drawer');
 
-  const onScroll = () => navbar.classList.toggle('scrolled', window.scrollY > 20);
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
   if (toggle && drawer) {
     toggle.addEventListener('click', () => {
       const open = toggle.classList.toggle('open');
       drawer.classList.toggle('open', open);
       document.body.style.overflow = open ? 'hidden' : '';
     });
-    // Close when a link is tapped
     drawer.querySelectorAll('a').forEach(a => {
       a.addEventListener('click', () => {
         toggle.classList.remove('open');
@@ -119,7 +124,6 @@ function initNavbar() {
     });
   }
 
-  // Highlight active nav link
   const path = window.location.pathname;
   document.querySelectorAll('.navbar__nav a, .mobile-drawer a').forEach(a => {
     if (a.getAttribute('href') && path.endsWith(a.getAttribute('href').split('/').pop())) {
@@ -128,77 +132,59 @@ function initNavbar() {
   });
 }
 
-/* ── Scroll Reveal Animations ────────────────────────────── */
-function initReveal() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('revealed');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-}
-
-/* ── Product Card Builder ─────────────────────────────────── */
-function buildProductCard(product, size = 'normal') {
+/* ── Product Card Builder (Clean White, No On-Card Specs) ── */
+function buildProductCard(product) {
   const minPrice = getMinPrice(product);
-  const defaultVariant = product.storage[0];
+  const defaultVariant = product.storage ? product.storage[0] : '';
+  const hasMultiple = product.storage && product.storage.length > 1;
 
   const card = document.createElement('div');
-  card.className = `product-card reveal`;
+  card.className = `product-card`;
   card.dataset.productId = product.id;
 
+  const resolvedImg = resolveAsset(product.image);
+  const resolvedFallback = resolveAsset(product.imageFallback);
+
   card.innerHTML = `
-    <div class="product-card__image-wrap">
-      ${product.badge ? `<span class="product-card__badge badge ${product.badgeType || 'badge-blue'}">${product.badge}</span>` : ''}
+    <div class="product-card__image-wrap" onclick="openProductModal('${product.id}')">
+      ${product.badge ? `<span class="product-card__badge ${product.badgeType || 'badge-blue'}">${product.badge}</span>` : ''}
       <img
         class="product-card__image"
-        src="${product.image}"
+        src="${resolvedImg}"
         alt="${product.name}"
         loading="lazy"
-        onerror="this.src='${product.imageFallback}'"
+        decoding="async"
+        width="220"
+        height="220"
+        onerror="this.src='${resolvedFallback}'"
       />
     </div>
     <div class="product-card__body">
-      <h3 class="product-card__name">${product.name}</h3>
-      <p class="product-card__desc">${product.desc}</p>
-      ${product.storage.length > 1 ? `
-        <select class="form-input variant-select" style="padding:0.5rem 0.75rem;font-size:0.8rem;" data-product-id="${product.id}">
-          ${product.storage.map(s => `<option value="${s}">${s} — ${formatPrice(product.price[s])}</option>`).join('')}
-        </select>
-      ` : ''}
+      <h3 class="product-card__name" onclick="openProductModal('${product.id}')">${product.name}</h3>
+      <span class="product-card__details-link" onclick="openProductModal('${product.id}')">
+        View specs &amp; details &rarr;
+      </span>
       <div class="product-card__price">
-        <span class="from">${product.storage.length > 1 ? 'from' : 'Price'}</span>
+        <span class="from">${hasMultiple ? 'from' : 'Price'}</span>
         <span class="amount">${formatPrice(minPrice)}</span>
       </div>
       <div class="product-card__actions">
-        <button class="btn btn-primary btn-sm add-to-cart" data-product-id="${product.id}">
+        <button class="add-to-cart" data-product-id="${product.id}">
           Add to Cart
         </button>
-        <a href="${buildWhatsAppLink(`Hi! I'm interested in the ${product.name}. Is it available?`)}"
-           target="_blank" rel="noopener"
-           class="btn btn-wa btn-sm">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.121 1.528 5.847L.057 23.492a.5.5 0 0 0 .613.63l5.74-1.498A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.98 0-3.838-.582-5.4-1.584l-.386-.243-3.995 1.043 1.072-3.907-.265-.408A9.96 9.96 0 0 1 2 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-          WhatsApp
-        </a>
       </div>
     </div>
   `;
 
-  // Add to cart handler
-  card.querySelector('.add-to-cart').addEventListener('click', () => {
-    const sel = card.querySelector('.variant-select');
-    const variant = sel ? sel.value : product.storage[0];
-    Cart.addItem(product, variant);
-    // Animate button
+  // Add to cart click
+  card.querySelector('.add-to-cart').addEventListener('click', (e) => {
+    e.stopPropagation();
+    Cart.addItem(product, defaultVariant);
     const btn = card.querySelector('.add-to-cart');
     btn.textContent = 'Added';
     btn.style.background = 'var(--clr-green)';
     setTimeout(() => {
-      btn.innerHTML = 'Add to Cart';
+      btn.textContent = 'Add to Cart';
       btn.style.background = '';
     }, 1500);
   });
@@ -206,19 +192,124 @@ function buildProductCard(product, size = 'normal') {
   return card;
 }
 
-/* ── Render Product Carousel ──────────────────────────────── */
-function renderCarousel(containerId, products) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  products.forEach((p, i) => {
-    const item = document.createElement('div');
-    item.className = 'carousel-item';
-    const card = buildProductCard(p);
-    card.style.transitionDelay = `${i * 0.08}s`;
-    item.appendChild(card);
-    container.appendChild(item);
+/* ── Product Specs & Details Modal ───────────────────────── */
+function openProductModal(productId) {
+  let product = null;
+  for (const cat in PRODUCTS) {
+    const found = PRODUCTS[cat].find(p => p.id === productId);
+    if (found) { product = found; break; }
+  }
+  if (!product) return;
+
+  let modalOverlay = document.getElementById('product-modal-overlay');
+  if (!modalOverlay) {
+    modalOverlay = document.createElement('div');
+    modalOverlay.id = 'product-modal-overlay';
+    modalOverlay.className = 'modal-overlay';
+    document.body.appendChild(modalOverlay);
+  }
+
+  const resolvedImg = resolveAsset(product.image);
+  let selectedVariant = product.storage ? product.storage[0] : '';
+  let currentPrice = product.price[selectedVariant] || getMinPrice(product);
+
+  // Parse specs from description string
+  const specParts = (product.desc || '').split('·').map(s => s.trim()).filter(Boolean);
+  const specsHtml = specParts.length > 0
+    ? `<table class="specs-table">
+        ${specParts.map((part, i) => {
+          let label = 'Feature';
+          if (part.toLowerCase().includes('bionic') || part.toLowerCase().includes('chip') || part.toLowerCase().includes('intel') || part.toLowerCase().includes('amd') || part.toLowerCase().includes('ryzen') || part.toLowerCase().includes('m1') || part.toLowerCase().includes('m2') || part.toLowerCase().includes('m3') || part.toLowerCase().includes('m4')) label = 'Processor';
+          else if (part.includes('″') || part.toLowerCase().includes('display') || part.toLowerCase().includes('retina') || part.toLowerCase().includes('oled')) label = 'Display';
+          else if (part.toLowerCase().includes('camera') || part.toLowerCase().includes('mp')) label = 'Camera';
+          else if (part.toLowerCase().includes('battery')) label = 'Battery';
+          else if (part.toLowerCase().includes('ram')) label = 'Memory';
+          return `<tr><td class="spec-label">${label}</td><td class="spec-value">${part}</td></tr>`;
+        }).join('')}
+        <tr><td class="spec-label">Condition</td><td class="spec-value">100% Authentic &amp; Factory Certified</td></tr>
+        <tr><td class="spec-label">Warranty</td><td class="spec-value">Official Store Guarantee &amp; Testing</td></tr>
+      </table>`
+    : '';
+
+  // Storage pills
+  const variantsHtml = product.storage && product.storage.length > 1
+    ? `<div class="modal-variants-label">Select Storage / Model:</div>
+       <div class="modal-variants">
+         ${product.storage.map((s, idx) => `
+           <button class="variant-pill ${idx === 0 ? 'active' : ''}" data-variant="${s}">
+             ${s}
+           </button>
+         `).join('')}
+       </div>`
+    : '';
+
+  modalOverlay.innerHTML = `
+    <div class="modal-sheet">
+      <div class="modal-sheet__header">
+        <span class="modal-sheet__badge">${product.badge || 'Official Gear'}</span>
+        <button class="modal-sheet__close" onclick="closeProductModal()">&times;</button>
+      </div>
+
+      <div class="modal-sheet__image-wrap">
+        <img class="modal-sheet__image" src="${resolvedImg}" alt="${product.name}" />
+      </div>
+
+      <h2 class="modal-sheet__title">${product.name}</h2>
+
+      ${specsHtml}
+      ${variantsHtml}
+
+      <div class="modal-footer-price">
+        <span class="label">Price in Ghana:</span>
+        <span class="price" id="modal-price">${formatPrice(currentPrice)}</span>
+      </div>
+
+      <button class="btn btn-primary btn-lg" id="modal-add-btn" style="width:100%;margin-bottom:0.75rem;">
+        Add to Cart
+      </button>
+
+      <div style="text-align:center;">
+        <a href="${buildWhatsAppLink(`Hi STY. J! I am asking about the ${product.name} (${selectedVariant}).`)}"
+           target="_blank" rel="noopener"
+           style="font-size:0.8rem;color:var(--clr-text-2);text-decoration:underline;">
+          Have questions? Chat directly on WhatsApp
+        </a>
+      </div>
+    </div>
+  `;
+
+  // Bind variant pills
+  modalOverlay.querySelectorAll('.variant-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      modalOverlay.querySelectorAll('.variant-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      selectedVariant = pill.dataset.variant;
+      currentPrice = product.price[selectedVariant];
+      document.getElementById('modal-price').textContent = formatPrice(currentPrice);
+    });
   });
-  setTimeout(initReveal, 100);
+
+  // Bind add button
+  document.getElementById('modal-add-btn').addEventListener('click', () => {
+    Cart.addItem(product, selectedVariant);
+    closeProductModal();
+  });
+
+  // Close on outside tap
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeProductModal();
+  });
+
+  modalOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProductModal() {
+  const modalOverlay = document.getElementById('product-modal-overlay');
+  if (modalOverlay) {
+    modalOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
 }
 
 /* ── Render Products Grid ─────────────────────────────────── */
@@ -226,19 +317,13 @@ function renderProductsGrid(containerId, products) {
   const container = document.getElementById(containerId);
   if (!container) return;
   container.innerHTML = '';
-  products.forEach((p, i) => {
-    const card = buildProductCard(p);
-    card.classList.add(`reveal-delay-${Math.min(i % 4 + 1, 4)}`);
-    container.appendChild(card);
+  products.forEach(p => {
+    container.appendChild(buildProductCard(p));
   });
-  setTimeout(initReveal, 100);
 }
 
-/* ── Floating WhatsApp Button ────────────────────────────── */
-function initFab() {
-  const fab = document.querySelector('.fab-wa');
-  if (!fab) return;
-  fab.href = buildWhatsAppLink(`Hi STY. J Tech Hub! 👋 I'd like to enquire about your products.`);
+function renderCarousel(containerId, products) {
+  renderProductsGrid(containerId, products);
 }
 
 /* ── Filter Chips ─────────────────────────────────────────── */
@@ -252,8 +337,9 @@ function initFilterChips(gridId, category) {
       if (filter !== 'all') {
         products = products.filter(p => {
           if (filter === 'featured') return p.featured;
-          if (filter === 'value') return p.badge === 'Value';
-          if (filter === 'new') return p.badge === 'New';
+          if (filter === 'flagship') return p.badge === 'Flagship' || p.badge === 'Latest Flagship' || p.badge === 'Powerhouse';
+          if (filter === 'value') return p.badge === 'Value' || p.badge === 'Best Value' || p.badge === 'Best Starter' || p.badge === 'Classic';
+          if (filter === 'new') return p.badge === 'New' || p.badge === 'Latest' || p.badge === 'Ultra-Slim';
           return true;
         });
       }
@@ -262,7 +348,14 @@ function initFilterChips(gridId, category) {
   });
 }
 
-/* ── Cart Page Renderer ───────────────────────────────────── */
+/* ── Floating WhatsApp Button ────────────────────────────── */
+function initFab() {
+  const fab = document.querySelector('.fab-wa');
+  if (!fab) return;
+  fab.href = buildWhatsAppLink(`Hi STY. J Tech Hub! I'm visiting your website and have a question.`);
+}
+
+/* ── Cart Page Renderer (Clean White, No Duplicate WA Button) */
 function renderCartPage() {
   const container = document.getElementById('cart-items');
   const emptyState = document.getElementById('cart-empty');
@@ -270,67 +363,59 @@ function renderCartPage() {
   const totalEl    = document.getElementById('cart-total');
   const countEl    = document.getElementById('cart-count');
   const checkoutBtn = document.getElementById('checkout-btn');
-  const waOrderBtn  = document.getElementById('wa-order-btn');
 
   if (!container) return;
 
   function redraw() {
     const items = Cart.getItems();
     if (items.length === 0) {
-      emptyState && (emptyState.style.display = 'block');
-      cartFull   && (cartFull.style.display = 'none');
+      if (emptyState) emptyState.style.display = 'block';
+      if (cartFull) cartFull.style.display = 'none';
       return;
     }
-    emptyState && (emptyState.style.display = 'none');
-    cartFull   && (cartFull.style.display = 'block');
+    if (emptyState) emptyState.style.display = 'none';
+    if (cartFull) cartFull.style.display = 'block';
 
     container.innerHTML = items.map(item => `
       <div class="cart-item">
-        <img class="cart-item__image"
+        <img class="cart-item__img"
              src="${item.image}"
              alt="${item.name}"
              onerror="this.src='${item.imageFallback}'"
              loading="lazy">
-        <div class="cart-item__info">
+        <div class="cart-item__details">
           <div class="cart-item__name">${item.name}</div>
           <div class="cart-item__variant">${item.variant}</div>
           <div class="cart-item__price">${formatPrice(item.price * item.qty)}</div>
         </div>
-        <div class="cart-item__qty">
+        <div class="qty-control">
           <button class="qty-btn" data-id="${item.id}" data-variant="${item.variant}" data-action="dec">−</button>
-          <span class="qty-value">${item.qty}</span>
+          <span class="qty-val">${item.qty}</span>
           <button class="qty-btn" data-id="${item.id}" data-variant="${item.variant}" data-action="inc">+</button>
         </div>
-        <button class="btn btn-sm" style="color:var(--clr-red);background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.2);padding:0.4rem 0.75rem;"
-                data-id="${item.id}" data-variant="${item.variant}" data-action="remove">✕</button>
+        <button class="cart-item__remove"
+                data-id="${item.id}" data-variant="${item.variant}" data-action="remove"
+                aria-label="Remove item">&times;</button>
       </div>
     `).join('');
 
     const total = Cart.getTotal();
     if (totalEl) totalEl.textContent = formatPrice(total);
     if (countEl) countEl.textContent = Cart.getCount();
-
-    // WhatsApp order button
-    if (waOrderBtn) {
-      waOrderBtn.href = buildOrderWhatsAppLink(items);
-    }
-    if (checkoutBtn) {
-      checkoutBtn.href = 'checkout.html';
-    }
-
-    // Qty/remove event delegation
-    container.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-action]');
-      if (!btn) return;
-      const { id, variant, action } = btn.dataset;
-      const item = Cart.getItems().find(i => i.id === id && i.variant === variant);
-      if (!item) return;
-      if (action === 'inc') Cart.updateQty(id, variant, item.qty + 1);
-      if (action === 'dec') Cart.updateQty(id, variant, item.qty - 1);
-      if (action === 'remove') { Cart.removeItem(id, variant); showToast('Item removed'); }
-      redraw();
-    }, { once: true }); // re-add on redraw
+    if (checkoutBtn) checkoutBtn.href = 'checkout.html';
   }
+
+  container.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const { id, variant, action } = btn.dataset;
+    const item = Cart.getItems().find(i => i.id === id && i.variant === variant);
+    if (!item) return;
+    if (action === 'inc') Cart.updateQty(id, variant, item.qty + 1);
+    if (action === 'dec') Cart.updateQty(id, variant, item.qty - 1);
+    if (action === 'remove') { Cart.removeItem(id, variant); showToast('Item removed'); }
+    redraw();
+  });
 
   redraw();
   window.addEventListener('cart:updated', redraw);
@@ -351,7 +436,6 @@ function initCheckoutPage() {
     return;
   }
 
-  // Populate hidden fields
   if (itemsField) {
     itemsField.value = items.map(i => `${i.name} (${i.variant}) x${i.qty} @ ${formatPrice(i.price)}`).join('\n');
   }
@@ -359,20 +443,19 @@ function initCheckoutPage() {
     totalField.value = formatPrice(Cart.getTotal());
   }
 
-  // Render order summary
   if (summaryEl) {
     summaryEl.innerHTML = items.map(i => `
-      <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.875rem;">
+      <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e5e5ea;font-size:0.875rem;">
         <div>
-          <div style="font-weight:600;color:#f5f5f7;">${i.name}</div>
-          <div style="color:#86868b;font-size:0.8rem;">${i.variant} × ${i.qty}</div>
+          <div style="font-weight:700;color:#1d1d1f;">${i.name}</div>
+          <div style="color:#6e6e73;font-size:0.78rem;">${i.variant} &times; ${i.qty}</div>
         </div>
-        <div style="font-weight:700;color:#0a84ff;">${formatPrice(i.price * i.qty)}</div>
+        <div style="font-weight:700;color:#0071e3;">${formatPrice(i.price * i.qty)}</div>
       </div>
     `).join('') + `
-      <div style="display:flex;justify-content:space-between;padding:1rem 0 0;font-size:1rem;font-weight:800;color:#f5f5f7;">
+      <div style="display:flex;justify-content:space-between;padding:0.75rem 0 0;font-size:1.1rem;font-weight:800;color:#1d1d1f;">
         <span>Total</span>
-        <span style="color:#0a84ff;">${formatPrice(Cart.getTotal())}</span>
+        <span style="color:#0071e3;">${formatPrice(Cart.getTotal())}</span>
       </div>
     `;
   }
@@ -381,7 +464,7 @@ function initCheckoutPage() {
     e.preventDefault();
     const submitBtn = form.querySelector('[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Placing order…';
+    submitBtn.textContent = 'Processing Order…';
 
     const data = Object.fromEntries(new FormData(form));
     const orderObj = {
@@ -392,50 +475,35 @@ function initCheckoutPage() {
       status: 'pending',
     };
 
-    // 1) Submit to Formspree (email)
-    let emailOk = false;
+    // 1. Submit to Formspree
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      await fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify(orderObj),
       });
-      emailOk = res.ok;
     } catch {}
 
-    // 2) Save to Firebase Firestore
+    // 2. Save to Firestore
     try {
       await saveOrderToFirestore(orderObj);
     } catch (err) {
-      console.warn('Firestore save failed:', err);
+      console.warn('Firestore save:', err);
     }
 
-    // 3) Show confirmation + open WhatsApp
+    // 3. Open WhatsApp link with preloaded order details
     const waLink = buildOrderWhatsAppLink(Cart.getItems());
     Cart.clear();
 
-    // Redirect to success page with WhatsApp link
     sessionStorage.setItem('order_success', JSON.stringify({
       name: data.name,
       waLink,
     }));
-    window.location.href = '../order-success.html';
+    window.location.href = 'order-success.html';
   });
 }
 
-/* ── Firebase Firestore Integration ─────────────────────── */
-// Firebase config — filled in from your Firebase project settings
-const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyCLUI_WsWZKCAEims4ffoMGFEdJFEIL5Ac",
-  authDomain:        "styj-nexus.firebaseapp.com",
-  projectId:         "styj-nexus",
-  storageBucket:     "styj-nexus.firebasestorage.app",
-  messagingSenderId: "1008828465224",
-  appId:             "1:1008828465224:web:f87f7b03e642cda4ba987d",
-  measurementId:     "G-WJS97K0NL4",
-};
-
-// Firestore helpers (loaded via CDN in HTML)
+/* ── Firebase Firestore Helper ───────────────────────────── */
 async function saveOrderToFirestore(orderData) {
   if (typeof firebase === 'undefined') return;
   const db = firebase.firestore();
@@ -449,59 +517,33 @@ async function saveOrderToFirestore(orderData) {
 function initSuccessPage() {
   const data = JSON.parse(sessionStorage.getItem('order_success') || 'null');
   if (!data) return;
-  sessionStorage.removeItem('order_success');
 
   const nameEl = document.getElementById('success-name');
   const waBtn  = document.getElementById('success-wa-btn');
 
-  if (nameEl) nameEl.textContent = data.name;
-
-  if (waBtn) {
+  if (nameEl && data.name) nameEl.textContent = data.name;
+  if (waBtn  && data.waLink) {
     waBtn.href = data.waLink;
-    // Auto-open WhatsApp after 1.5s
-    setTimeout(() => window.open(data.waLink, '_blank'), 1500);
+    // Auto-open WhatsApp after small delay
+    setTimeout(() => {
+      window.open(data.waLink, '_blank');
+    }, 1200);
   }
 }
 
-/* ── DOM Ready ────────────────────────────────────────────── */
+/* ── DOM Ready Initializer ───────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
-  initReveal();
-  initFab();
   updateCartBadge();
+  initFab();
 
-  // Page-specific init
-  if (document.getElementById('home-iphones-carousel')) {
-    renderCarousel('home-iphones-carousel', PRODUCTS.iphones.slice(0, 6));
-    renderCarousel('home-laptops-carousel', PRODUCTS.laptops.slice(0, 4));
-    // Accessories strip
-    const accStrip = document.getElementById('acc-strip');
-    if (accStrip) {
-      PRODUCTS.accessories.forEach(p => {
-        const item = document.createElement('div');
-        item.className = 'acc-item';
-        item.innerHTML = `
-          <div class="acc-item__img-wrap">
-            <img class="acc-item__img" src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.src='${p.imageFallback}'">
-          </div>
-          <div class="acc-item__name">${p.name}</div>
-          <div class="acc-item__price">from ${formatPrice(getMinPrice(p))}</div>
-        `;
-        item.addEventListener('click', () => window.location.href = `products/accessories.html`);
-        accStrip.appendChild(item);
-      });
-    }
+  // Page routers
+  const path = window.location.pathname;
+  if (path.endsWith('cart.html')) {
+    renderCartPage();
+  } else if (path.endsWith('checkout.html')) {
+    initCheckoutPage();
+  } else if (path.endsWith('order-success.html')) {
+    initSuccessPage();
   }
-
-  if (document.getElementById('products-grid')) {
-    const category = document.body.dataset.category;
-    if (category) {
-      renderProductsGrid('products-grid', getProductsByCategory(category));
-      initFilterChips('products-grid', category);
-    }
-  }
-
-  if (document.getElementById('cart-items')) renderCartPage();
-  if (document.getElementById('order-form'))  initCheckoutPage();
-  if (document.getElementById('success-name')) initSuccessPage();
 });
