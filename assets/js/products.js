@@ -1,4 +1,4 @@
-/**
+﻿/**
  * STY. J NEXUS — Product Catalog
  * Edit prices and add new products here.
  * Currency: GHS (₵)
@@ -472,4 +472,5 @@ function buildOrderWhatsAppLink(items) {
 
 /* ── Formspree Config ─────────────────────────────────────── */
 // Replace with your actual Formspree endpoint after signing up at formspree.io
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/meaqjknp';
+
