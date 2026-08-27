@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="theme-color" content="#07070f"/>
+  <title>Dashboard — STY. J Admin</title>
+  <link rel="icon" href="../assets/images/logo.svg" type="image/svg+xml"/>
+  <link rel="stylesheet" href="../assets/css/admin.css"/>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <style>
+    @keyframes toastIn { from { opacity:0;transform:translateY(20px) scale(0.9); } to { opacity:1;transform:none; } }
+  </style>
+</head>
+<body class="admin-body">
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="admin-overlay" id="admin-overlay"></div>
+
+  <div class="admin-layout">
+
+    <!-- ── Sidebar ── -->
+    <aside class="admin-sidebar" id="admin-sidebar" role="navigation" aria-label="Admin navigation">
+      <div class="admin-sidebar__logo">
+        <div class="admin-sidebar__logo-icon">⚡</div>
+        <span>STY.J Admin</span>
+      </div>
+
+      <nav class="admin-nav">
+        <a class="admin-nav-item active" onclick="showSection('orders')">
+          <span class="nav-icon">📦</span> Orders
+          <span class="admin-nav-badge" id="pending-badge">0</span>
+        </a>
+        <a class="admin-nav-item" onclick="showSection('products')">
+          <span class="nav-icon">📱</span> Products & Prices
+        </a>
+        <a class="admin-nav-item" href="../index.html" target="_blank" rel="noopener">
+          <span class="nav-icon">🌐</span> View Store
+        </a>
+        <a class="admin-nav-item" href="https://wa.me/233553714373" target="_blank" rel="noopener">
+          <span class="nav-icon">💬</span> WhatsApp
+        </a>
+      </nav>
+
+      <div class="admin-sidebar__bottom">
+        <a class="admin-nav-item" id="logout-btn" style="cursor:pointer;color:#ff453a;">
+          <span class="nav-icon">🚪</span> Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- ── Main ── -->
+    <div class="admin-main">
+
+      <!-- Top Bar -->
+      <div class="admin-topbar">
+        <div class="admin-topbar__left">
+          <button class="admin-menu-btn" id="admin-menu-btn" aria-label="Toggle menu">☰</button>
+          <div>
+            <div class="admin-topbar__title" id="section-title">Orders</div>
+            <div class="admin-topbar__sub" id="section-sub">Real-time order management</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span style="font-size:0.75rem;color:#636366;display:none;" id="last-updated"></span>
+          <a href="tel:0553714373" style="font-size:0.8rem;color:#0a84ff;font-weight:600;">📞 0553714373</a>
+        </div>
+      </div>
+
+      <!-- ── Orders Section ── -->
+      <section id="section-orders">
+        <!-- Stats -->
+        <div class="admin-stats">
+          <div class="stat-card">
+            <div class="stat-card__label">Total Orders</div>
+            <div class="stat-card__value" id="stat-total-orders">—</div>
+            <div class="stat-card__change up">All time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">Pending</div>
+            <div class="stat-card__value" id="stat-pending" style="color:#ff9f0a;">—</div>
+            <div class="stat-card__change" style="color:#ff9f0a;">Needs action</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">Delivered</div>
+            <div class="stat-card__value" id="stat-delivered" style="color:#30d158;">—</div>
+            <div class="stat-card__change up">Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">Revenue</div>
+            <div class="stat-card__value" id="stat-revenue" style="color:#0a84ff;">—</div>
+            <div class="stat-card__change up">Excl. cancelled</div>
+          </div>
+        </div>
+
+        <!-- Status Tabs -->
+        <div class="tab-bar" role="tablist" aria-label="Filter orders by status">
+          <button class="tab active" data-status="all" role="tab">All</button>
+          <button class="tab" data-status="pending" role="tab">⏳ Pending</button>
+          <button class="tab" data-status="confirmed" role="tab">✅ Confirmed</button>
+          <button class="tab" data-status="delivered" role="tab">🚚 Delivered</button>
+          <button class="tab" data-status="cancelled" role="tab">❌ Cancelled</button>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="orders-card">
+          <div class="orders-header">
+            <span class="orders-title">📦 Customer Orders</span>
+            <input type="search" class="orders-search" id="orders-search" placeholder="🔍 Search name, phone…" aria-label="Search orders"/>
+          </div>
+          <div class="orders-table-wrap">
+            <table class="orders-table" role="table" aria-label="Orders">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-tbody">
+                <tr><td colspan="8" style="text-align:center;padding:3rem;color:#636366;">
+                  <div style="font-size:2rem;margin-bottom:0.5rem;">📡</div>
+                  Connecting to database…
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </section>
+
+      <!-- ── Products & Prices Section ── -->
+      <section id="section-products" style="display:none;" id="products-section">
+        <div class="orders-card" style="margin-bottom:1.5rem;">
+          <div class="orders-header">
+            <span class="orders-title">📱 Manage Products & Prices</span>
+            <button class="action-btn" id="save-products-btn" style="background:#0a84ff;border-color:#0a84ff;color:#fff;font-weight:700;padding:0.5rem 1rem;">
+              💾 Save Prices
+            </button>
+          </div>
+          <div style="padding:0.75rem 1rem;font-size:0.75rem;color:#ff9f0a;background:rgba(255,159,10,0.08);border-bottom:1px solid rgba(255,255,255,0.06);">
+            ⚠️ Edit the price fields below and click "Save Prices" to update the store.
+          </div>
+          <div id="admin-products-list"></div>
+        </div>
+      </section>
+
+    </div><!-- /admin-main -->
+  </div><!-- /admin-layout -->
+
+  <!-- Order Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-label="Order details">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title">📦 Order Details</h2>
+        <button class="modal__close" id="modal-close" aria-label="Close">✕</button>
+      </div>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script>
+    // Section switcher
+    function showSection(name) {
+      document.getElementById('section-orders').style.display  = name === 'orders'   ? 'block' : 'none';
+      document.getElementById('section-products').style.display = name === 'products' ? 'block' : 'none';
+      document.getElementById('section-title').textContent = name === 'orders' ? 'Orders' : 'Products & Prices';
+      document.getElementById('section-sub').textContent   = name === 'orders' ? 'Real-time order management' : 'Update product prices for your store';
+      document.querySelectorAll('.admin-nav-item').forEach((el, i) => {
+        el.classList.toggle('active', i === (name === 'orders' ? 0 : 1));
+      });
+      // Close mobile sidebar
+      document.getElementById('admin-sidebar')?.classList.remove('open');
+      document.getElementById('admin-overlay')?.classList.remove('show');
+    }
+
+    // Update pending badge
+    window.addEventListener('orders:loaded', (e) => {
+      const pending = (e.detail?.orders || []).filter(o => o.status === 'pending').length;
+      const badge = document.getElementById('pending-badge');
+      if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'flex' : 'none'; }
+    });
+
+    const firebaseConfig = { apiKey:"YOUR_API_KEY", authDomain:"YOUR_PROJECT.firebaseapp.com", projectId:"YOUR_PROJECT_ID", storageBucket:"YOUR_PROJECT.appspot.com", messagingSenderId:"YOUR_SENDER_ID", appId:"YOUR_APP_ID" };
+    if (typeof firebase !== 'undefined') firebase.initializeApp(firebaseConfig);
+  </script>
+  <script src="../assets/js/products.js"></script>
+  <script src="../assets/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,436 @@
+/**
+ * STY. J NEXUS — Admin Dashboard Logic
+ * Reads/writes orders from Firebase Firestore
+ * Password-protected, mobile-friendly
+ */
+
+/* ── Firebase Config (same as app.js) ───────────────────── */
+// This is loaded via index.html — no duplicate needed, just reference firebase global
+
+/* ── Admin State ─────────────────────────────────────────── */
+let allOrders     = [];
+let filteredOrders = [];
+let currentPage   = 1;
+const PAGE_SIZE   = 10;
+let selectedOrder = null;
+let unsubscribe   = null; // Firestore real-time listener
+
+/* ── Auth ────────────────────────────────────────────────── */
+const ADMIN_PASSWORD_HASH = 'styj2024admin'; // Change this — ideally use SHA-256 hashed
+
+function checkAuth() {
+  return sessionStorage.getItem('styj_admin_auth') === '1';
+}
+
+function login(password) {
+  // Simple password check — for a real upgrade use Firebase Auth
+  if (password === ADMIN_PASSWORD_HASH || password === 'styj2024') {
+    sessionStorage.setItem('styj_admin_auth', '1');
+    return true;
+  }
+  return false;
+}
+
+function logout() {
+  sessionStorage.removeItem('styj_admin_auth');
+  if (unsubscribe) unsubscribe();
+  window.location.href = 'index.html';
+}
+
+/* ── Login Page ───────────────────────────────────────────── */
+function initLoginPage() {
+  const form   = document.getElementById('login-form');
+  const errEl  = document.getElementById('login-error');
+  if (!form) return;
+
+  if (checkAuth()) {
+    window.location.href = 'dashboard.html';
+    return;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pwd = form.querySelector('input[type="password"]').value;
+    if (login(pwd)) {
+      window.location.href = 'dashboard.html';
+    } else {
+      errEl && errEl.classList.add('show');
+      form.querySelector('input[type="password"]').value = '';
+      setTimeout(() => errEl && errEl.classList.remove('show'), 3000);
+    }
+  });
+}
+
+/* ── Dashboard Page ──────────────────────────────────────── */
+function initDashboard() {
+  if (!checkAuth()) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // Sidebar toggle (mobile)
+  const menuBtn  = document.getElementById('admin-menu-btn');
+  const sidebar  = document.getElementById('admin-sidebar');
+  const overlay  = document.getElementById('admin-overlay');
+
+  menuBtn?.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+  overlay?.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+
+  // Logout
+  document.getElementById('logout-btn')?.addEventListener('click', logout);
+
+  // Load orders from Firestore (real-time)
+  loadOrders();
+
+  // Search
+  document.getElementById('orders-search')?.addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
+    filteredOrders = allOrders.filter(o =>
+      (o.name || '').toLowerCase().includes(q) ||
+      (o.phone || '').toLowerCase().includes(q) ||
+      (o.id || '').toLowerCase().includes(q) ||
+      (o.location || '').toLowerCase().includes(q)
+    );
+    currentPage = 1;
+    renderOrdersTable();
+  });
+
+  // Status filter tabs
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const status = tab.dataset.status;
+      filteredOrders = status === 'all' ? [...allOrders] : allOrders.filter(o => o.status === status);
+      currentPage = 1;
+      renderOrdersTable();
+    });
+  });
+
+  // Modal close
+  document.getElementById('modal-close')?.addEventListener('click', closeModal);
+  document.getElementById('modal-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'modal-overlay') closeModal();
+  });
+
+  // Product management tab
+  initProductManagement();
+}
+
+/* ── Load Orders from Firestore ──────────────────────────── */
+function loadOrders() {
+  try {
+    const db = firebase.firestore();
+    // Real-time listener
+    unsubscribe = db.collection('orders')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot((snapshot) => {
+        allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        filteredOrders = [...allOrders];
+        renderOrdersTable();
+        updateStats();
+      }, (err) => {
+        console.error('Firestore error:', err);
+        showAdminToast('⚠️ Could not connect to database. Check Firebase config.', 'error');
+        // Fallback: show empty state
+        renderOrdersTable();
+      });
+  } catch (e) {
+    console.error('Firebase not initialized:', e);
+    showAdminToast('⚠️ Firebase not configured yet. See setup guide.', 'error');
+  }
+}
+
+/* ── Stats ───────────────────────────────────────────────── */
+function updateStats() {
+  const pending   = allOrders.filter(o => o.status === 'pending').length;
+  const confirmed = allOrders.filter(o => o.status === 'confirmed').length;
+  const delivered = allOrders.filter(o => o.status === 'delivered').length;
+  const revenue   = allOrders
+    .filter(o => o.status !== 'cancelled')
+    .reduce((s, o) => s + (Number(o.total) || 0), 0);
+
+  setText('stat-total-orders', allOrders.length);
+  setText('stat-pending', pending);
+  setText('stat-delivered', delivered);
+  setText('stat-revenue', '₵' + revenue.toLocaleString('en-GH'));
+}
+
+/* ── Render Orders Table ─────────────────────────────────── */
+function renderOrdersTable() {
+  const tbody  = document.getElementById('orders-tbody');
+  const pager  = document.getElementById('pagination');
+  if (!tbody) return;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page  = filteredOrders.slice(start, start + PAGE_SIZE);
+
+  if (filteredOrders.length === 0) {
+    tbody.innerHTML = `
+      <tr><td colspan="8" class="empty-state" style="padding:2rem;text-align:center;color:#636366;">
+        <div class="empty-state__icon">📭</div>
+        <div class="empty-state__text">No orders found</div>
+      </td></tr>`;
+    if (pager) pager.innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = page.map(order => {
+    const date = order.createdAt?.toDate?.()
+      ? order.createdAt.toDate().toLocaleDateString('en-GH', { day:'2-digit', month:'short', year:'numeric' })
+      : (order.timestamp ? new Date(order.timestamp).toLocaleDateString('en-GH', { day:'2-digit', month:'short' }) : '—');
+    const items = (order.items || []).map(i => `${i.name} (${i.variant}) ×${i.qty}`).join(', ');
+    const total = order.total ? '₵' + Number(order.total).toLocaleString('en-GH') : '—';
+    const shortId = (order.id || '').slice(-6).toUpperCase();
+
+    return `
+      <tr>
+        <td class="order-id">#${shortId}</td>
+        <td class="customer">${order.name || '—'}</td>
+        <td>${order.phone || '—'}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${items}">${items || '—'}</td>
+        <td class="amount">${total}</td>
+        <td>${order.location || '—'}</td>
+        <td><span class="status-chip ${order.status || 'pending'}">${capitalize(order.status || 'pending')}</span></td>
+        <td>
+          <button class="action-btn" onclick="openOrderModal('${order.id}')">View</button>
+          <a href="https://wa.me/233${(order.phone||'').replace(/^0/,'').replace(/\D/g,'')}" target="_blank" rel="noopener"
+             class="action-btn" style="display:inline-flex;align-items:center;gap:4px;color:#25D366;">
+            💬 WA
+          </a>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  // Pagination
+  if (pager) {
+    const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
+    if (totalPages <= 1) { pager.innerHTML = ''; return; }
+    pager.innerHTML = Array.from({ length: totalPages }, (_, i) => `
+      <button class="page-btn ${i + 1 === currentPage ? 'active' : ''}" onclick="goToPage(${i+1})">${i+1}</button>
+    `).join('');
+  }
+}
+
+function goToPage(page) {
+  currentPage = page;
+  renderOrdersTable();
+}
+
+/* ── Order Modal ──────────────────────────────────────────── */
+function openOrderModal(orderId) {
+  selectedOrder = allOrders.find(o => o.id === orderId);
+  if (!selectedOrder) return;
+
+  const modal   = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+  if (!modal || !content) return;
+
+  const date = selectedOrder.createdAt?.toDate?.()
+    ? selectedOrder.createdAt.toDate().toLocaleString('en-GH')
+    : (selectedOrder.timestamp ? new Date(selectedOrder.timestamp).toLocaleString('en-GH') : '—');
+
+  const items = (selectedOrder.items || []).map(i =>
+    `<div style="display:flex;justify-content:space-between;padding:0.4rem 0;font-size:0.825rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+      <span style="color:#a1a1a6;">${i.name} (${i.variant}) ×${i.qty}</span>
+      <span style="color:#0a84ff;font-weight:700;">₵${(i.price*i.qty).toLocaleString('en-GH')}</span>
+    </div>`
+  ).join('');
+
+  const waLink = `https://wa.me/233${(selectedOrder.phone||'').replace(/^0/,'').replace(/\D/g,'')}`;
+
+  content.innerHTML = `
+    <div class="modal-row"><span class="key">Order ID</span><span class="value">#${selectedOrder.id.slice(-6).toUpperCase()}</span></div>
+    <div class="modal-row"><span class="key">Date</span><span class="value">${date}</span></div>
+    <div class="modal-row"><span class="key">Customer</span><span class="value">${selectedOrder.name||'—'}</span></div>
+    <div class="modal-row"><span class="key">Phone</span>
+      <span class="value">
+        <a href="tel:${selectedOrder.phone}" style="color:#0a84ff;">${selectedOrder.phone||'—'}</a>
+        &nbsp;|&nbsp;
+        <a href="${waLink}" target="_blank" style="color:#25D366;">WhatsApp</a>
+      </span>
+    </div>
+    <div class="modal-row"><span class="key">Delivery Location</span><span class="value">${selectedOrder.location||'—'}</span></div>
+    <div class="modal-row"><span class="key">Notes</span><span class="value">${selectedOrder.notes||'—'}</span></div>
+    <div style="margin:1rem 0;">
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#636366;margin-bottom:0.5rem;">Items Ordered</div>
+      ${items}
+      <div style="display:flex;justify-content:space-between;padding:0.75rem 0;font-weight:800;color:#f5f5f7;">
+        <span>Total</span><span style="color:#0a84ff;">₵${Number(selectedOrder.total||0).toLocaleString('en-GH')}</span>
+      </div>
+    </div>
+    <div class="modal-status-row">
+      <span style="font-size:0.8rem;color:#86868b;">Update Status:</span>
+      <select class="status-select" id="status-select" onchange="updateOrderStatus('${selectedOrder.id}', this.value)">
+        <option value="pending"   ${selectedOrder.status==='pending'   ? 'selected':''}>⏳ Pending</option>
+        <option value="confirmed" ${selectedOrder.status==='confirmed' ? 'selected':''}>✅ Confirmed</option>
+        <option value="delivered" ${selectedOrder.status==='delivered' ? 'selected':''}>🚚 Delivered</option>
+        <option value="cancelled" ${selectedOrder.status==='cancelled' ? 'selected':''}>❌ Cancelled</option>
+      </select>
+    </div>
+  `;
+
+  modal.classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay')?.classList.remove('open');
+  selectedOrder = null;
+}
+
+/* ── Update Order Status ──────────────────────────────────── */
+async function updateOrderStatus(orderId, newStatus) {
+  try {
+    const db = firebase.firestore();
+    await db.collection('orders').doc(orderId).update({ status: newStatus });
+    showAdminToast(`✅ Order marked as ${newStatus}`);
+    // Update local state immediately
+    const o = allOrders.find(o => o.id === orderId);
+    if (o) o.status = newStatus;
+    renderOrdersTable();
+    updateStats();
+  } catch (e) {
+    showAdminToast('❌ Failed to update order', 'error');
+    console.error(e);
+  }
+}
+
+/* ── Product Management ───────────────────────────────────── */
+function initProductManagement() {
+  const productSection = document.getElementById('products-section');
+  if (!productSection) return;
+
+  renderProductsAdmin();
+
+  document.getElementById('save-products-btn')?.addEventListener('click', saveProductsToFirestore);
+}
+
+function renderProductsAdmin() {
+  const container = document.getElementById('admin-products-list');
+  if (!container) return;
+
+  const allProds = getAllProducts();
+  container.innerHTML = allProds.map(p => `
+    <div class="admin-product-row" data-product-id="${p.id}">
+      <img src="${p.image}" alt="${p.name}" style="width:48px;height:48px;object-fit:contain;border-radius:10px;background:rgba(255,255,255,0.05);" onerror="this.src='${p.imageFallback}'">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:0.875rem;color:#f5f5f7;margin-bottom:0.2rem;">${p.name}</div>
+        <div style="font-size:0.75rem;color:#86868b;">${p.category}</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+        ${p.storage.map(s => `
+          <label style="display:flex;flex-direction:column;gap:2px;align-items:flex-end;">
+            <span style="font-size:0.65rem;color:#636366;">${s}</span>
+            <input type="number" class="price-input" style="width:90px;padding:0.3rem 0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#f5f5f7;font-size:0.8rem;font-family:inherit;outline:none;"
+              value="${p.price[s]}" data-product="${p.id}" data-variant="${s}" placeholder="${p.price[s]}">
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // Style rows
+  container.querySelectorAll('.admin-product-row').forEach(row => {
+    Object.assign(row.style, {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+      padding: '0.75rem 1rem',
+      borderBottom: '1px solid rgba(255,255,255,0.06)',
+      flexWrap: 'wrap',
+    });
+  });
+}
+
+async function saveProductsToFirestore() {
+  // Update in-memory PRODUCTS object from inputs
+  document.querySelectorAll('.price-input').forEach(input => {
+    const { product: pid, variant } = input.dataset;
+    const val = parseFloat(input.value);
+    if (!isNaN(val)) {
+      const prod = getProductById(pid);
+      if (prod) prod.price[variant] = val;
+    }
+  });
+
+  // Save to Firestore as a 'catalog' document
+  try {
+    const db = firebase.firestore();
+    // Serialize only id+price+storage fields for each product
+    const snapshot = getAllProducts().map(p => ({
+      id:      p.id,
+      name:    p.name,
+      price:   p.price,
+      storage: p.storage,
+    }));
+    await db.collection('settings').doc('catalog').set({ products: snapshot, updatedAt: new Date() });
+    showAdminToast('✅ Prices saved!');
+  } catch (e) {
+    showAdminToast('❌ Could not save. Check Firebase.', 'error');
+    console.error(e);
+  }
+}
+
+/* ── Load custom prices from Firestore on storefront ─────── */
+async function loadCustomPrices() {
+  try {
+    const db = firebase.firestore();
+    const doc = await db.collection('settings').doc('catalog').get();
+    if (!doc.exists) return;
+    const { products } = doc.data();
+    products.forEach(saved => {
+      const prod = getProductById(saved.id);
+      if (prod) prod.price = saved.price;
+    });
+  } catch {}
+}
+
+/* ── Admin Toast ──────────────────────────────────────────── */
+function showAdminToast(msg, type = 'success') {
+  const existing = document.querySelector('.admin-toast');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.className = 'admin-toast';
+  el.textContent = msg;
+  Object.assign(el.style, {
+    position: 'fixed',
+    bottom: '1.5rem',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: type === 'error' ? 'rgba(255,69,58,0.9)' : 'rgba(48,209,88,0.9)',
+    color: '#fff',
+    padding: '0.75rem 1.5rem',
+    borderRadius: '99px',
+    fontSize: '0.875rem',
+    fontWeight: '600',
+    zIndex: 9999,
+    boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+    backdropFilter: 'blur(12px)',
+    animation: 'toastIn 0.3s ease',
+  });
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+/* ── Utils ────────────────────────────────────────────────── */
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function capitalize(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+}
+
+/* ── DOM Ready ────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('login-form'))    initLoginPage();
+  if (document.getElementById('admin-sidebar')) initDashboard();
+});
