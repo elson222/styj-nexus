@@ -373,17 +373,21 @@ input, select, textarea { font-family: inherit; }
 }
 
 .hero__phone-mobile {
-  max-width: 280px;
-  width: 80%;
+  max-width: 460px;
+  width: 92%;
   height: auto;
   margin: 0 auto;
   object-fit: contain;
   background: transparent;
-  filter: drop-shadow(0 16px 32px rgba(0,0,0,0.12));
+  display: block;
 }
 
 @media (min-width: 768px) {
-  .hero__phone-mobile { max-width: 360px; }
+  .hero__phone-mobile { max-width: 720px; }
+}
+
+@media (min-width: 1024px) {
+  .hero__phone-mobile { max-width: 840px; }
 }
 
 /* ── Trust Bar ───────────────────────────────────────────── */
@@ -605,11 +609,12 @@ input, select, textarea { font-family: inherit; }
   box-shadow: var(--shadow-card-hover);
 }
 
-/* Seamless Image Container */
+/* Seamless Image Container with Subtle Studio Surface */
 .product-card__image-wrap {
   position: relative;
-  background: #ffffff;
-  height: 155px;
+  background: #fbfbfd;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  height: 160px;
   padding: var(--sp-3);
   display: flex;
   align-items: center;
@@ -623,11 +628,12 @@ input, select, textarea { font-family: inherit; }
 }
 
 .product-card__image {
-  max-height: 135px;
+  max-height: 140px;
   max-width: 100%;
   width: auto;
   object-fit: contain;
-  background: #ffffff;
+  background: transparent;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.07));
   transition: transform var(--t-base);
 }
 
@@ -686,51 +692,46 @@ input, select, textarea { font-family: inherit; }
 }
 
 .product-card__name {
-  font-size: 0.875rem;
+  font-size: 0.925rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   line-height: 1.25;
   color: var(--clr-text);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.4rem;
   cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color var(--t-fast);
+}
+
+.product-card__name:hover {
+  color: var(--clr-blue);
 }
 
 @media (min-width: 768px) {
-  .product-card__name { font-size: 1rem; }
-}
-
-.product-card__details-link {
-  font-size: 0.72rem;
-  color: var(--clr-blue);
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.product-card__details-link:hover {
-  text-decoration: underline;
+  .product-card__name { font-size: 1.05rem; }
 }
 
 /* Card Price */
 .product-card__price {
   margin-top: auto;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
 }
 
 .product-card__price .from {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--clr-text-3);
-  display: block;
-  line-height: 1;
-  margin-bottom: 2px;
+  text-transform: capitalize;
 }
 
 .product-card__price .amount {
-  font-size: 1.05rem;
+  font-size: 1.125rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--clr-text);
@@ -740,18 +741,17 @@ input, select, textarea { font-family: inherit; }
   .product-card__price .amount { font-size: 1.25rem; }
 }
 
-/* Single Action Button */
+/* Single Action Button — Apple Rounded Pill */
 .product-card__actions {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
 }
 
 .add-to-cart {
   width: 100%;
   height: 38px;
-  border-radius: var(--r-md);
-  font-size: 0.8rem;
+  border-radius: var(--r-full);
+  font-size: 0.825rem;
   font-weight: 700;
   background: var(--clr-blue);
   color: #ffffff;
@@ -759,11 +759,12 @@ input, select, textarea { font-family: inherit; }
   align-items: center;
   justify-content: center;
   transition: all var(--t-fast);
-  box-shadow: 0 2px 6px rgba(0,113,227,0.25);
+  box-shadow: 0 2px 6px rgba(0, 113, 227, 0.18);
 }
 
 .add-to-cart:hover {
   background: var(--clr-blue-hover);
+  box-shadow: 0 4px 10px rgba(0, 113, 227, 0.28);
 }
 
 .add-to-cart:active {
@@ -850,18 +851,21 @@ input, select, textarea { font-family: inherit; }
 }
 
 .modal-sheet__image-wrap {
-  background: #ffffff;
-  height: 200px;
+  background: #f5f5f7;
+  border-radius: var(--r-lg);
+  height: 220px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
 }
 
 .modal-sheet__image {
-  max-height: 190px;
+  max-height: 200px;
   max-width: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.09));
 }
 
 .modal-sheet__title {

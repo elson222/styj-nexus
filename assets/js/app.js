@@ -161,9 +161,6 @@ function buildProductCard(product) {
     </div>
     <div class="product-card__body">
       <h3 class="product-card__name" onclick="openProductModal('${product.id}')">${product.name}</h3>
-      <span class="product-card__details-link" onclick="openProductModal('${product.id}')">
-        View specs &amp; details &rarr;
-      </span>
       <div class="product-card__price">
         <span class="from">${hasMultiple ? 'from' : 'Price'}</span>
         <span class="amount">${formatPrice(minPrice)}</span>
