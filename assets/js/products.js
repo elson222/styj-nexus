@@ -860,6 +860,16 @@ function buildOrderWhatsAppLink(items, customerData = {}, orderRef = '') {
     `• Phone: ${customerData.phone || ''}\n` +
     `• Location: ${customerData.location || ''}\n` +
     `• Method: ${customerData.delivery_type === 'pickup' ? 'In-Person Pickup (Accra)' : 'Doorstep Delivery (Nationwide)'}\n`;
+  const paymentLabels = {
+    'pay_on_delivery': 'Pay on Delivery (Accra / Tema — MoMo or Cash upon inspection)',
+    'momo_pay': 'Direct MTN MoMo Pay (Merchant Account: 055 371 4373)',
+    'paystack': 'Pay Online (Card & Mobile Money via Paystack)'
+  };
+  const payStr = paymentLabels[customerData.payment_method] || customerData.payment_method || 'Pay on Delivery';
+  msg += `• Payment Choice: ${payStr}\n`;
+  if (customerData.paystack_ref) {
+    msg += `• Paystack Ref: ${customerData.paystack_ref}\n`;
+  }
   if (customerData.notes && customerData.notes.trim()) {
     msg += `• Notes: ${customerData.notes.trim()}\n`;
   }

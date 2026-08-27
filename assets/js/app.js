@@ -514,6 +514,39 @@ function initCheckoutPage() {
     `;
   }
 
+  // Handle Payment Method Card Selection & Dynamic Button Labeling
+  const paymentInputs = form.querySelectorAll('input[name="payment_method"]');
+  const submitBtn = document.getElementById('checkout-submit-btn') || form.querySelector('[type="submit"]');
+
+  function updatePaymentCards() {
+    const selected = form.querySelector('input[name="payment_method"]:checked')?.value || 'pay_on_delivery';
+    form.querySelectorAll('.payment-method-card').forEach(card => {
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio && radio.checked) {
+        card.style.borderColor = '#38bdf8';
+        card.style.background = 'rgba(56,189,248,0.06)';
+      } else {
+        card.style.borderColor = 'rgba(255,255,255,0.12)';
+        card.style.background = 'rgba(255,255,255,0.02)';
+      }
+    });
+
+    if (submitBtn) {
+      if (selected === 'paystack') {
+        submitBtn.innerHTML = `Pay Online via Paystack (${formatPrice(Cart.getTotal())}) &rarr;`;
+      } else if (selected === 'momo_pay') {
+        submitBtn.innerHTML = `Confirm Order (Direct MoMo Pay) &rarr;`;
+      } else {
+        submitBtn.innerHTML = `Complete Order (Pay on Delivery) &rarr;`;
+      }
+    }
+  }
+
+  paymentInputs.forEach(input => {
+    input.addEventListener('change', updatePaymentCards);
+  });
+  updatePaymentCards();
+
   let isSubmitting = false;
 
   form.addEventListener('submit', async (e) => {
@@ -567,22 +600,103 @@ function initCheckoutPage() {
       return;
     }
 
+    const data = Object.fromEntries(new FormData(form));
+    const paymentMethod = data.payment_method || 'pay_on_delivery';
+    const orderItems = Cart.getItems();
+    const orderTotal = Cart.getTotal();
+
+    // If Paystack is selected and a valid live or test key is set, trigger Paystack inline modal
+    const paystackKey = window.PAYSTACK_PUBLIC_KEY || 'pk_test_placeholder_styj';
+    const hasLivePaystackKey = paystackKey.startsWith('pk_live_') || (paystackKey.startsWith('pk_test_') && paystackKey !== 'pk_test_placeholder_styj');
+
+    if (paymentMethod === 'paystack' && typeof PaystackPop !== 'undefined' && hasLivePaystackKey) {
+      isSubmitting = true;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Opening Secure Gateway…';
+      }
+
+      const today = new Date();
+      const datePart = today.toISOString().slice(0, 10).replace(/-/g, '');
+      const randPart = Math.floor(1000 + Math.random() * 9000);
+      const orderId = `ORD-${datePart}-${randPart}`;
+
+      const handler = PaystackPop.setup({
+        key: paystackKey,
+        email: `${cleanPhone}@styj.nexus`,
+        amount: Math.round(orderTotal * 100), // in pesewas
+        currency: 'GHS',
+        ref: orderId,
+        metadata: {
+          custom_fields: [
+            { display_name: "Customer Name", variable_name: "customer_name", value: data.name },
+            { display_name: "Customer Phone", variable_name: "customer_phone", value: data.phone },
+            { display_name: "Delivery Location", variable_name: "delivery_location", value: data.location }
+          ]
+        },
+        callback: async function(response) {
+          // Payment successful!
+          const orderObj = {
+            ...data,
+            orderId,
+            items: orderItems,
+            total: orderTotal,
+            timestamp: new Date().toISOString(),
+            status: 'paid_paystack',
+            paystack_ref: response.reference
+          };
+          try {
+            await fetch(FORMSPREE_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+              body: JSON.stringify(orderObj),
+            });
+          } catch (e) {}
+          try {
+            await saveOrderToFirestore(orderObj);
+          } catch (e) {}
+
+          const waLink = buildOrderWhatsAppLink(orderItems, { ...data, paystack_ref: response.reference }, orderId);
+          sessionStorage.setItem('order_success', JSON.stringify({
+            orderId,
+            name: data.name,
+            phone: data.phone,
+            location: data.location,
+            delivery_type: data.delivery_type,
+            payment_method: paymentMethod,
+            paystack_ref: response.reference,
+            notes: data.notes,
+            items: orderItems,
+            total: orderTotal,
+            waLink,
+          }));
+          Cart.clear();
+          window.location.href = 'order-success.html';
+        },
+        onClose: function() {
+          isSubmitting = false;
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            updatePaymentCards();
+          }
+          showToast('Payment window closed. Order is still in your bag.');
+        }
+      });
+      handler.openIframe();
+      return;
+    }
+
+    // Default flow (Pay on Delivery or Direct MoMo Pay or Paystack Invoice)
     isSubmitting = true;
-    const submitBtn = form.querySelector('[type="submit"]');
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Securing Order…';
     }
 
-    // Generate cryptographically random, unguessable Order ID
     const today = new Date();
     const datePart = today.toISOString().slice(0, 10).replace(/-/g, '');
     const randPart = Math.floor(1000 + Math.random() * 9000);
     const orderId = `ORD-${datePart}-${randPart}`;
-
-    const data = Object.fromEntries(new FormData(form));
-    const orderItems = Cart.getItems();
-    const orderTotal = Cart.getTotal();
 
     const orderObj = {
       ...data,
@@ -711,6 +825,33 @@ function initSuccessPage() {
         <div><strong>Phone:</strong> ${data.phone || '—'}</div>
         <div><strong>Method:</strong> ${data.delivery_type === 'pickup' ? 'In-Person Pickup (Accra)' : 'Doorstep Delivery (Nationwide)'}</div>
       </div>
+
+      ${(() => {
+        if (data.payment_method === 'momo_pay') {
+          return `
+            <div style="margin-top:1rem;padding:0.875rem 1rem;border-radius:12px;background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.25);font-size:0.825rem;color:#fef08a;line-height:1.45;">
+              <strong style="color:#facc15;display:block;margin-bottom:4px;font-size:0.875rem;">Official STY. J Nexus MoMo Details:</strong>
+              <div>• MoMo Hotline: <strong>055 371 4373</strong></div>
+              <div>• Reference to use: <strong>${shortId}</strong></div>
+              <div style="font-size:0.75rem;color:#cbd5e1;margin-top:4px;">Please send the MoMo transaction ID or screenshot on WhatsApp to confirm immediate dispatch.</div>
+            </div>
+          `;
+        } else if (data.payment_method === 'paystack') {
+          return `
+            <div style="margin-top:1rem;padding:0.875rem 1rem;border-radius:12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);font-size:0.825rem;color:#bbf7d0;line-height:1.45;">
+              <strong style="color:#22c55e;display:block;margin-bottom:2px;font-size:0.875rem;">Payment Option: Pay Online (Paystack)</strong>
+              ${data.paystack_ref ? `Paid Successfully via Paystack! &bull; Ref: <code>${data.paystack_ref}</code>` : `Order registered. Our team will send your secure Paystack invoice link via WhatsApp / SMS for instant checkout.`}
+            </div>
+          `;
+        } else {
+          return `
+            <div style="margin-top:1rem;padding:0.875rem 1rem;border-radius:12px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);font-size:0.825rem;color:#bae6fd;line-height:1.45;">
+              <strong style="color:#38bdf8;display:block;margin-bottom:2px;font-size:0.875rem;">Payment Option: Pay on Delivery</strong>
+              Inspect your device in person (IMEI, battery health, Face ID) before releasing payment via MoMo or cash to our courier.
+            </div>
+          `;
+        }
+      })()}
     </div>
 
     <p style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.5rem;line-height:1.5;">
