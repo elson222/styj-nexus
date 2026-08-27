@@ -145,6 +145,12 @@ function buildProductCard(product) {
   const resolvedImg = resolveAsset(product.image);
   const resolvedFallback = resolveAsset(product.imageFallback);
 
+  const inCartItem = Cart.getItems().find(i => i.id === product.id);
+  const inCartClass = inCartItem ? ' in-cart' : '';
+  const inCartContent = inCartItem
+    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>In Cart (${inCartItem.qty})`
+    : 'Add to Cart';
+
   card.innerHTML = `
     <div class="product-card__image-wrap" onclick="openProductModal('${product.id}')">
       ${product.badge ? `<span class="product-card__badge ${product.badgeType || 'badge-blue'}">${product.badge}</span>` : ''}
@@ -166,8 +172,8 @@ function buildProductCard(product) {
         <span class="amount">${formatPrice(minPrice)}</span>
       </div>
       <div class="product-card__actions">
-        <button class="add-to-cart" data-product-id="${product.id}">
-          Add to Cart
+        <button class="add-to-cart${inCartClass}" data-product-id="${product.id}">
+          ${inCartContent}
         </button>
       </div>
     </div>
@@ -177,13 +183,6 @@ function buildProductCard(product) {
   card.querySelector('.add-to-cart').addEventListener('click', (e) => {
     e.stopPropagation();
     Cart.addItem(product, defaultVariant);
-    const btn = card.querySelector('.add-to-cart');
-    btn.textContent = 'Added';
-    btn.style.background = 'var(--clr-green)';
-    setTimeout(() => {
-      btn.textContent = 'Add to Cart';
-      btn.style.background = '';
-    }, 1500);
   });
 
   return card;
@@ -275,6 +274,24 @@ function openProductModal(productId) {
     </div>
   `;
 
+  const updateModalBtnState = () => {
+    const modalBtn = document.getElementById('modal-add-btn');
+    if (!modalBtn) return;
+    const items = Cart.getItems();
+    const exist = items.find(i => i.id === product.id && i.variant === selectedVariant);
+    if (exist) {
+      modalBtn.classList.add('in-cart');
+      modalBtn.style.background = 'var(--clr-green)';
+      modalBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>In Cart (${exist.qty}) · Add Another`;
+    } else {
+      modalBtn.classList.remove('in-cart');
+      modalBtn.style.background = '';
+      modalBtn.textContent = 'Add to Cart';
+    }
+  };
+
+  updateModalBtnState();
+
   // Bind variant pills
   modalOverlay.querySelectorAll('.variant-pill').forEach(pill => {
     pill.addEventListener('click', () => {
@@ -283,13 +300,14 @@ function openProductModal(productId) {
       selectedVariant = pill.dataset.variant;
       currentPrice = product.price[selectedVariant];
       document.getElementById('modal-price').textContent = formatPrice(currentPrice);
+      updateModalBtnState();
     });
   });
 
   // Bind add button
   document.getElementById('modal-add-btn').addEventListener('click', () => {
     Cart.addItem(product, selectedVariant);
-    closeProductModal();
+    updateModalBtnState();
   });
 
   // Close on outside tap
@@ -317,6 +335,7 @@ function renderProductsGrid(containerId, products) {
   products.forEach(p => {
     container.appendChild(buildProductCard(p));
   });
+  updateCartButtons();
 }
 
 function renderCarousel(containerId, products) {
@@ -528,10 +547,28 @@ function initSuccessPage() {
   }
 }
 
+/* ── Sync In-Cart Button States ────────────────────────────── */
+function updateCartButtons() {
+  const items = Cart.getItems();
+  document.querySelectorAll('.add-to-cart[data-product-id]').forEach(btn => {
+    const pid = btn.dataset.productId;
+    const cartItem = items.find(i => i.id === pid);
+    if (cartItem) {
+      btn.classList.add('in-cart');
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>In Cart (${cartItem.qty})`;
+    } else {
+      btn.classList.remove('in-cart');
+      btn.textContent = 'Add to Cart';
+    }
+  });
+}
+window.addEventListener('cart:updated', updateCartButtons);
+
 /* ── DOM Ready Initializer ───────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
   updateCartBadge();
+  updateCartButtons();
   initFab();
 
   // Page routers

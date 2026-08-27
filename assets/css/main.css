@@ -771,6 +771,17 @@ input, select, textarea { font-family: inherit; }
   transform: scale(0.98);
 }
 
+.add-to-cart.in-cart {
+  background: var(--clr-green);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(52, 199, 89, 0.25);
+}
+
+.add-to-cart.in-cart:hover {
+  background: #2db34e;
+  box-shadow: 0 4px 10px rgba(52, 199, 89, 0.35);
+}
+
 /* ── Product Specs & Details Modal (Bottom Sheet on Mobile) ─ */
 .modal-overlay {
   position: fixed;
