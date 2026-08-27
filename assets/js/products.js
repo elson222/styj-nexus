@@ -21,7 +21,7 @@ const PRODUCTS = {
       price: { '256GB': 26500, '512GB': 29500, '1TB': 33500, '2TB': 38000 },
       image: 'assets/images/products/iphone-17-pro-max.png',
       imageFallback: 'assets/images/products/iphone-17-pro-max.png',
-      colors: ['Cosmic Titanium', 'Desert Gold', 'Space Black', 'Silver'],
+      colors: ['Cosmic Orange', 'Desert Gold', 'Space Black', 'Silver'],
       featured: true,
     },
     {
@@ -63,7 +63,7 @@ const PRODUCTS = {
       price: { '128GB': 16500, '256GB': 18500, '512GB': 21000 },
       image: 'assets/images/products/iphone-17.png',
       imageFallback: 'assets/images/products/iphone-17.png',
-      colors: ['Ultramarine', 'Teal', 'Pink', 'White', 'Black'],
+      colors: ['Mist Blue', 'Sage', 'Lavender', 'White', 'Black'],
       featured: true,
     },
     {
