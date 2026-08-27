@@ -16,8 +16,14 @@ let selectedOrder = null;
 let unsubscribe   = null; // Firestore real-time listener
 
 /* ── Auth (SHA-256 Hashed, No Plaintext Passwords) ──────── */
-// SHA-256 hash for store management credential
-const ADMIN_HASH = '6b278789483e503c222f55c063c0bb678da4b0affc92bc7f4cf5aa8d0231064c';
+// SHA-256 hashes for authorized admin credentials
+// Supports StyJ@Nexus2026!, styj2026, styj2024admin, styj2024
+const ADMIN_HASHES = new Set([
+  '6b278789483e503c222f55c063c0bb678da4b0affc92bc7f4cf5aa8d0231064c', // StyJ@Nexus2026!
+  '35f665197a30d22fb128e8795bb2ba19d85d70e1988f07889e484334dde06c45', // styj2026
+  '56ca446b81a23cb715a3a70a82ccca0e6e272d25fc2d71fd6af9dc3b651e4eb1', // styj2024admin
+  'd7c422d385b5349a0f83da77f2a09d8513043264077cc78b6a4a83c0e4478680', // styj2024
+]);
 
 async function sha256(message) {
   const msgBuffer = new TextEncoder().encode(message);
@@ -32,8 +38,8 @@ function checkAuth() {
 
 async function login(password) {
   if (!password) return false;
-  const hash = await sha256(password);
-  if (hash === ADMIN_HASH) {
+  const hash = await sha256(password.trim());
+  if (ADMIN_HASHES.has(hash)) {
     sessionStorage.setItem('styj_admin_auth', '1');
     return true;
   }
@@ -55,6 +61,25 @@ function initLoginPage() {
   if (checkAuth()) {
     window.location.href = 'dashboard.html';
     return;
+  }
+
+  const toggleBtn = document.getElementById('toggle-pwd-btn');
+  const pwdInput  = document.getElementById('admin-pwd-input') || form.querySelector('input');
+
+  if (toggleBtn && pwdInput) {
+    toggleBtn.addEventListener('click', () => {
+      const isPwd = pwdInput.type === 'password';
+      pwdInput.type = isPwd ? 'text' : 'password';
+      toggleBtn.innerHTML = isPwd
+        ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+          </svg>`
+        : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>`;
+    });
   }
 
   const checkLockout = () => {
@@ -79,7 +104,6 @@ function initLoginPage() {
     e.preventDefault();
     if (checkLockout()) return;
 
-    const pwdInput = form.querySelector('input[type="password"]');
     const pwd = pwdInput ? pwdInput.value : '';
     const success = await login(pwd);
     if (success) {

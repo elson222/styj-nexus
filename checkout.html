@@ -23,6 +23,12 @@
         <span class="navbar__logo-text">STY.J <span>NEXUS</span></span>
       </a>
       <div class="navbar__actions">
+        <button class="nav-search-btn" id="nav-search-btn" aria-label="Search devices" title="Search (/)" onclick="openSearchModal()">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
         <a href="cart.html" class="cart-btn" aria-label="Shopping bag">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -59,18 +65,17 @@
       </div>
 
       <!-- Trust & Guarantee Box on Checkout -->
-      <div style="background:rgba(0,186,167,0.08);border:1px solid rgba(0,186,167,0.25);border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:0.4rem;">
-        <div style="font-size:0.8rem;font-weight:800;color:var(--color-primary);text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:6px;">
+      <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.22);border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:0.4rem;">
+        <div style="font-size:0.8rem;font-weight:800;color:#38bdf8;text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:6px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           STY. J Nexus Buyer Guarantee
         </div>
         <div style="font-size:0.825rem;color:var(--color-text-muted);line-height:1.45;">
-          🛡️ <strong>6-Month Store Warranty</strong> on hardware &bull; 🔄 <strong>48-Hour Exchange Guarantee</strong> &bull; 🚚 <strong>Accra &amp; Nationwide Delivery</strong>
+          🔄 <strong>48-Hour Exchange Guarantee</strong> &bull; 🚚 <strong>Accra &amp; Nationwide Delivery</strong> &bull; 🔍 <strong>Free Inspection Upon Handover</strong>
         </div>
         <div style="display:flex;gap:1rem;margin-top:0.35rem;font-size:0.78rem;">
-          <a href="javascript:void(0)" onclick="openPolicyModal('warranty')" style="color:var(--color-primary);text-decoration:underline;">Warranty Terms</a>
-          <a href="javascript:void(0)" onclick="openPolicyModal('returns')" style="color:var(--color-primary);text-decoration:underline;">Returns &amp; Exchanges</a>
-          <a href="javascript:void(0)" onclick="openPolicyModal('delivery')" style="color:var(--color-primary);text-decoration:underline;">Delivery Info</a>
+          <a href="javascript:void(0)" onclick="openPolicyModal('returns')" style="color:#38bdf8;text-decoration:underline;">Returns &amp; Exchanges</a>
+          <a href="javascript:void(0)" onclick="openPolicyModal('delivery')" style="color:#38bdf8;text-decoration:underline;">Delivery Terms</a>
         </div>
       </div>
 

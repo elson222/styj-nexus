@@ -37,7 +37,13 @@
         <a href="products/accessories.html">Accessories</a>
       </div>
       <div class="navbar__actions">
-        <a href="cart.html" class="cart-btn" aria-label="Shopping Cart" style="color:var(--clr-blue);">
+        <button class="nav-search-btn" id="nav-search-btn" aria-label="Search devices" title="Search (/)" onclick="openSearchModal()">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+        <a href="cart.html" class="cart-btn" aria-label="Shopping Cart">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
             <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -54,6 +60,10 @@
 
   <!-- Mobile Drawer -->
   <div class="mobile-drawer" id="mobile-drawer">
+    <button type="button" class="mobile-search-trigger" onclick="openSearchModal()" style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;background:rgba(255,255,255,0.06);border:1px solid var(--color-border);border-radius:var(--r-full);color:var(--color-text-muted);font-size:0.875rem;font-weight:600;margin-bottom:0.75rem;cursor:pointer;text-align:left;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      Search all devices...
+    </button>
     <a href="products/iphones.html">iPhones (X to 17 Pro Max) <span>&rarr;</span></a>
     <a href="products/laptops.html">Laptops &amp; MacBooks <span>&rarr;</span></a>
     <a href="products/watches.html">Apple Watch <span>&rarr;</span></a>
@@ -90,11 +100,11 @@
           </div>
           <div class="order-summary-row">
             <span>Nationwide Delivery</span>
-            <span style="color:var(--color-primary);font-weight:600;">Delivery arranged after order confirmation</span>
+            <span style="color:#38bdf8;font-weight:600;">Delivery arranged after order confirmation</span>
           </div>
           <div class="order-summary-row total">
             <span>Total</span>
-            <span class="amount" id="cart-total-2" style="color:var(--color-primary);">₵0</span>
+            <span class="amount" id="cart-total-2" style="color:#ffffff;">₵0</span>
           </div>
 
           <!-- Single clean primary button -->
@@ -104,10 +114,9 @@
             </a>
           </div>
 
-          <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--color-border);display:flex;justify-content:center;gap:1rem;font-size:0.78rem;">
-            <a href="javascript:void(0)" onclick="openPolicyModal('warranty')" style="color:var(--color-primary);text-decoration:underline;">6-Month Warranty</a>
-            <a href="javascript:void(0)" onclick="openPolicyModal('returns')" style="color:var(--color-primary);text-decoration:underline;">48h Returns</a>
-            <a href="javascript:void(0)" onclick="openPolicyModal('delivery')" style="color:var(--color-primary);text-decoration:underline;">Delivery Terms</a>
+          <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--color-border);display:flex;justify-content:center;gap:1.5rem;font-size:0.78rem;">
+            <a href="javascript:void(0)" onclick="openPolicyModal('returns')" style="color:#38bdf8;text-decoration:underline;">48h Returns &amp; Exchanges</a>
+            <a href="javascript:void(0)" onclick="openPolicyModal('delivery')" style="color:#38bdf8;text-decoration:underline;">Delivery Terms</a>
           </div>
 
           <p style="font-size:0.75rem;color:var(--clr-text-3);text-align:center;margin-top:1rem;line-height:1.5;">

@@ -18,7 +18,15 @@
       <p class="admin-login__sub">Store Management &amp; Orders Portal</p>
 
       <form class="admin-form" id="login-form" novalidate>
-        <input type="password" placeholder="Enter admin password" autocomplete="current-password" required/>
+        <div style="position:relative;width:100%;box-sizing:border-box;">
+          <input type="password" id="admin-pwd-input" placeholder="Enter admin password" autocomplete="current-password" required />
+          <button type="button" id="toggle-pwd-btn" aria-label="Toggle password visibility" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#86868b;cursor:pointer;padding:6px;display:flex;align-items:center;justify-content:center;">
+            <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
         <div class="error-msg" id="login-error">Incorrect password. Try again.</div>
         <button type="submit" class="btn-login">Sign In &rarr;</button>
       </form>

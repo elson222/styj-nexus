@@ -159,7 +159,6 @@ function buildProductCard(product) {
 
   card.innerHTML = `
     <div class="product-card__image-wrap" role="button" tabindex="0" aria-label="View ${product.name} specifications">
-      ${product.badge ? `<span class="product-card__badge ${product.badgeType || 'badge-blue'}">${product.badge}</span>` : ''}
       <button class="product-card__info-btn" aria-label="View specifications" title="View specifications">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
@@ -179,12 +178,7 @@ function buildProductCard(product) {
       />
     </div>
     <div class="product-card__body">
-      <div class="product-card__tag">${categoryTag}</div>
       <h3 class="product-card__name" role="button" tabindex="0">${product.name}</h3>
-      <p class="product-card__desc">${product.desc || 'Tested & certified authentic device with 6-month warranty.'}</p>
-      <div class="product-card__condition">
-        <span class="condition-dot"></span> Condition: ${product.condition || 'Brand New (Sealed)'}
-      </div>
       <div class="product-card__footer">
         <div class="product-card__price">
           <span class="from">${hasMultiple ? 'From' : ''}</span>
@@ -258,9 +252,7 @@ function openProductModal(productId) {
           else if (part.toLowerCase().includes('ram')) label = 'Memory';
           return `<tr><td class="spec-label">${label}</td><td class="spec-value">${part}</td></tr>`;
         }).join('')}
-        <tr><td class="spec-label">Condition</td><td class="spec-value" style="color:var(--color-primary-light);font-weight:700;">${product.condition || 'Authentic • IMEI Verified'}</td></tr>
-        <tr><td class="spec-label">Warranty</td><td class="spec-value">6-Month Hardware &amp; Battery Warranty</td></tr>
-        <tr><td class="spec-label">Verification</td><td class="spec-value">Clean IMEI • Free Testing Upon Delivery</td></tr>
+        <tr><td class="spec-label">Verification</td><td class="spec-value">Clean IMEI • Free Testing Upon Handover</td></tr>
       </table>`
     : '';
 
@@ -278,8 +270,7 @@ function openProductModal(productId) {
 
   modalOverlay.innerHTML = `
     <div class="modal-sheet">
-      <div class="modal-sheet__header">
-        <span class="modal-sheet__badge">${product.badge || 'Official Gear'}</span>
+      <div class="modal-sheet__header" style="justify-content:flex-end;">
         <button class="modal-sheet__close" id="modal-close-btn" aria-label="Close modal">&times;</button>
       </div>
 
@@ -301,8 +292,8 @@ function openProductModal(productId) {
         Add to Cart
       </button>
 
-      <button type="button" class="btn btn-secondary" onclick="openPolicyModal('warranty')" style="width:100%;margin-bottom:0.75rem;font-size:0.8rem;padding:8px 14px;">
-        🛡️ View 6-Month Warranty &amp; Return Terms
+      <button type="button" class="btn btn-secondary" onclick="openPolicyModal('returns')" style="width:100%;margin-bottom:0.75rem;font-size:0.8rem;padding:8px 14px;">
+        🔄 48-Hour Return &amp; Exchange Terms
       </button>
 
       <div style="text-align:center;">
@@ -510,12 +501,12 @@ function initCheckoutPage() {
           <div style="font-weight:700;color:#ffffff;">${i.name}</div>
           <div style="color:var(--color-text-muted);font-size:0.78rem;">${i.variant} &times; ${i.qty}</div>
         </div>
-        <div style="font-weight:700;color:var(--color-primary);">${formatPrice(i.price * i.qty)}</div>
+        <div style="font-weight:700;color:#ffffff;">${formatPrice(i.price * i.qty)}</div>
       </div>
     `).join('') + `
       <div style="display:flex;justify-content:space-between;padding:0.75rem 0 0;font-size:1.1rem;font-weight:800;color:#ffffff;">
         <span>Total</span>
-        <span style="color:var(--color-primary);">${formatPrice(Cart.getTotal())}</span>
+        <span style="color:#38bdf8;">${formatPrice(Cart.getTotal())}</span>
       </div>
     `;
   }
@@ -678,19 +669,19 @@ function initSuccessPage() {
         <div style="font-weight:700;color:var(--color-text);">${i.name}</div>
         <div style="color:var(--color-text-muted);font-size:0.78rem;">${i.variant} &times; ${i.qty}</div>
       </div>
-      <div style="font-weight:800;color:var(--color-cta);">${formatPrice(i.price * i.qty)}</div>
+      <div style="font-weight:800;color:#ffffff;">${formatPrice(i.price * i.qty)}</div>
     </div>
   `).join('');
 
   container.innerHTML = `
-    <!-- Green Check Badge -->
-    <div style="width:72px;height:72px;border-radius:50%;background:var(--color-surface-soft-alt);border:2px solid var(--color-success);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Success Badge -->
+    <div style="width:72px;height:72px;border-radius:50%;background:var(--color-surface-soft-alt);border:2px solid #38bdf8;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
     </div>
 
-    <span style="display:inline-block;padding:4px 12px;border-radius:99px;background:var(--color-surface-soft-alt);border:1px solid rgba(15,118,110,0.2);color:var(--color-primary);font-size:0.8rem;font-weight:800;letter-spacing:0.04em;margin-bottom:0.75rem;">
+    <span style="display:inline-block;padding:4px 12px;border-radius:99px;background:var(--color-surface-soft-alt);border:1px solid var(--color-border);color:#e2e8f0;font-size:0.8rem;font-weight:800;letter-spacing:0.04em;margin-bottom:0.75rem;">
       ${shortId}
     </span>
 
@@ -709,7 +700,7 @@ function initSuccessPage() {
       ${itemsHtml}
       <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0 0;font-size:1.1rem;font-weight:800;color:var(--color-text);">
         <span>Total</span>
-        <span style="color:var(--color-cta);">${totalStr}</span>
+        <span style="color:#ffffff;">${totalStr}</span>
       </div>
 
       <div style="margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--color-border);font-size:0.825rem;color:var(--color-text-muted);display:flex;flex-direction:column;gap:4px;">
@@ -736,7 +727,7 @@ function initSuccessPage() {
     </div>
 
     <p style="margin-top:2rem;font-size:0.8rem;color:var(--color-text-subtle);">
-      Need immediate phone assistance? Call: <a href="tel:0553714373" style="color:var(--color-primary);font-weight:700;">055 371 4373</a>
+      Need immediate phone assistance? Call: <a href="tel:0553714373" style="color:#38bdf8;font-weight:700;">055 371 4373</a>
     </p>
   `;
 
@@ -769,7 +760,7 @@ function updateCartButtons() {
 window.addEventListener('cart:updated', updateCartButtons);
 
 /* ── Store Policies Modal System ──────────────────────────── */
-function openPolicyModal(tab = 'warranty') {
+function openPolicyModal(tab = 'returns') {
   let modal = document.getElementById('policy-modal-overlay');
   if (!modal) {
     modal = document.createElement('div');
@@ -779,7 +770,7 @@ function openPolicyModal(tab = 'warranty') {
       <div class="modal-sheet" style="max-width:620px;">
         <div class="modal-sheet__header">
           <div style="font-size:1.1rem;font-weight:800;color:#ffffff;display:flex;align-items:center;gap:8px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             STY. J Nexus Store Policies
           </div>
           <button class="modal-sheet__close" id="policy-modal-close" aria-label="Close policies">&times;</button>
@@ -787,35 +778,21 @@ function openPolicyModal(tab = 'warranty') {
 
         <!-- Policy Navigation Tabs -->
         <div class="filter-bar" style="margin-bottom:1rem;" role="tablist">
-          <button class="filter-chip active" data-tab="warranty" role="tab">6-Month Warranty</button>
-          <button class="filter-chip" data-tab="returns" role="tab">Returns &amp; Exchanges</button>
+          <button class="filter-chip active" data-tab="returns" role="tab">Returns &amp; Exchanges</button>
           <button class="filter-chip" data-tab="delivery" role="tab">Nationwide Delivery</button>
           <button class="filter-chip" data-tab="privacy" role="tab">Privacy &amp; Terms</button>
         </div>
 
         <!-- Policy Tab Contents -->
-        <div id="policy-tab-warranty" class="policy-tab-content">
-          <h3 style="font-size:1.05rem;font-weight:800;color:#ffffff;margin-bottom:0.5rem;">6-Month Hardware &amp; Battery Warranty</h3>
-          <p style="color:var(--color-text-muted);font-size:0.875rem;line-height:1.5;margin-bottom:1rem;">
-            Every iPhone, MacBook, and Apple Watch sold by STY. J Nexus includes a comprehensive 6-month store warranty protecting you against internal component and hardware defects.
-          </p>
-          <ul style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--color-text-muted);margin-bottom:1rem;">
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Motherboard &amp; Logic Board:</strong> Full coverage for power, chip, and board functionality.</div></li>
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Battery Health Guarantee:</strong> Minimum 85%+ battery health on all UK Used Grade A+ devices; 100% on Brand New devices.</div></li>
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Authenticity Guarantee:</strong> Original Apple displays and cameras — never replaced with cheap aftermarket components.</div></li>
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">IMEI Clean &amp; Unlocked:</strong> Factory unlocked for MTN, Telecel, and AT networks in Ghana and worldwide.</div></li>
-          </ul>
-        </div>
-
-        <div id="policy-tab-returns" class="policy-tab-content" style="display:none;">
+        <div id="policy-tab-returns" class="policy-tab-content">
           <h3 style="font-size:1.05rem;font-weight:800;color:#ffffff;margin-bottom:0.5rem;">48-Hour Return &amp; Exchange Guarantee</h3>
           <p style="color:var(--color-text-muted);font-size:0.875rem;line-height:1.5;margin-bottom:1rem;">
             We give all customers a 48-hour testing window to inspect and use their device. If any technical discrepancy or defect occurs within 48 hours, you are entitled to an immediate swap or full refund.
           </p>
           <ul style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--color-text-muted);margin-bottom:1rem;">
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">On-Delivery Inspection:</strong> For all deliveries within Accra, our courier waits while you test Face ID / Touch ID, cameras, charging, and call quality.</div></li>
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Instant Replacement:</strong> If a fault is confirmed, our store dispatches a replacement device on the same day.</div></li>
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Eligibility:</strong> Device must remain in the same physical condition as received without user-induced screen cracks, water submersion, or iCloud locks.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:#38bdf8;font-weight:700;">✓</span> <div><strong style="color:#ffffff;">On-Delivery Inspection:</strong> For all deliveries within Accra, our courier waits while you test Face ID / Touch ID, cameras, charging, and call quality.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:#38bdf8;font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Instant Replacement:</strong> If a fault is confirmed, our store dispatches a replacement device on the same day.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:#38bdf8;font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Eligibility:</strong> Device must remain in the same physical condition as received without user-induced screen cracks, water submersion, or iCloud locks.</div></li>
           </ul>
         </div>
 
@@ -825,10 +802,10 @@ function openPolicyModal(tab = 'warranty') {
             We coordinate safe, insured delivery from our Accra headquarters to all 16 regions of Ghana.
           </p>
           <ul style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--color-text-muted);margin-bottom:1rem;">
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🚚</span> <div><strong style="color:#ffffff;">Greater Accra &amp; Tema:</strong> Same-day dispatch within 1–3 hours of confirmation. Cash or MoMo on delivery accepted.</div></li>
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🚚</span> <div><strong style="color:#ffffff;">Kumasi, Takoradi, Sunyani, Cape Coast:</strong> Next-day delivery to your doorstep or trusted courier hub.</div></li>
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🚚</span> <div><strong style="color:#ffffff;">Northern &amp; All Other Regions:</strong> 24–48 hours via tracked transport services (VIP / FedEx).</div></li>
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">📍</span> <div><strong style="color:#ffffff;">In-Person Pickup:</strong> Available daily in Accra by appointment.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:#38bdf8;font-weight:700;">🚚</span> <div><strong style="color:#ffffff;">Greater Accra &amp; Tema:</strong> Same-day dispatch within 1–3 hours of confirmation. Cash or MoMo on delivery accepted.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:#38bdf8;font-weight:700;">🚚</span> <div><strong style="color:#ffffff;">Kumasi, Takoradi, Sunyani, Cape Coast:</strong> Next-day delivery to your doorstep or trusted courier hub.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:#38bdf8;font-weight:700;">🚚</span> <div><strong style="color:#ffffff;">Northern &amp; All Other Regions:</strong> 24–48 hours via tracked transport services (VIP / FedEx).</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:#38bdf8;font-weight:700;">📍</span> <div><strong style="color:#ffffff;">In-Person Pickup:</strong> Available daily in Accra by appointment.</div></li>
           </ul>
         </div>
 
@@ -838,9 +815,9 @@ function openPolicyModal(tab = 'warranty') {
             STY. J Nexus values your privacy. We collect only the information necessary to fulfill your order and communicate delivery updates.
           </p>
           <ul style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--color-text-muted);margin-bottom:1rem;">
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🔒</span> <div><strong style="color:#ffffff;">Data Confidentiality:</strong> Your name, phone number, and address are strictly used for delivery coordination. We never share or sell customer data.</div></li>
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🔒</span> <div><strong style="color:#ffffff;">Stock Confirmation:</strong> Submitting an order reserves your request. Final availability and delivery time are verified via WhatsApp/call prior to dispatch.</div></li>
-            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🔒</span> <div><strong style="color:#ffffff;">Legal Identity:</strong> &copy; 2026 STY. J Nexus. Operating from Accra, Ghana.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:#38bdf8;font-weight:700;">🔒</span> <div><strong style="color:#ffffff;">Data Confidentiality:</strong> Your name, phone number, and address are strictly used for delivery coordination. We never share or sell customer data.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:#38bdf8;font-weight:700;">🔒</span> <div><strong style="color:#ffffff;">Stock Confirmation:</strong> Submitting an order reserves your request. Final availability and delivery time are verified via WhatsApp/call prior to dispatch.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:#38bdf8;font-weight:700;">🔒</span> <div><strong style="color:#ffffff;">Legal Identity:</strong> &copy; 2026 STY. J Nexus. Operating from Accra, Ghana.</div></li>
           </ul>
         </div>
 
@@ -881,6 +858,159 @@ function openPolicyModal(tab = 'warranty') {
   modal.classList.add('open');
 }
 window.openPolicyModal = openPolicyModal;
+
+/* ── Instant Live Search System ────────────────────────────── */
+let searchOverlay = null;
+let currentSearchCategory = 'all';
+
+function openSearchModal() {
+  if (!searchOverlay) {
+    searchOverlay = document.createElement('div');
+    searchOverlay.id = 'search-overlay';
+    searchOverlay.className = 'search-overlay';
+    searchOverlay.innerHTML = `
+      <div class="search-dialog" role="dialog" aria-modal="true" aria-label="Search devices">
+        <div class="search-dialog__header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="search" class="search-dialog__input" id="search-modal-input" placeholder="Search iPhones, MacBooks, Watches, AirPods..." autocomplete="off" />
+          <button type="button" class="search-dialog__close" id="search-modal-close" aria-label="Close search">&times;</button>
+        </div>
+
+        <div class="search-dialog__filters">
+          <button type="button" class="search-filter-pill active" data-cat="all">All Devices</button>
+          <button type="button" class="search-filter-pill" data-cat="iphones">iPhones</button>
+          <button type="button" class="search-filter-pill" data-cat="laptops">Laptops</button>
+          <button type="button" class="search-filter-pill" data-cat="watches">Apple Watch</button>
+          <button type="button" class="search-filter-pill" data-cat="accessories">Accessories</button>
+        </div>
+
+        <div class="search-results" id="search-modal-results"></div>
+
+        <div class="search-dialog__footer">
+          <span>Tip: Click device to inspect specifications</span>
+          <span>Esc to close</span>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(searchOverlay);
+
+    // Event listeners
+    const input = document.getElementById('search-modal-input');
+    const closeBtn = document.getElementById('search-modal-close');
+
+    closeBtn?.addEventListener('click', closeSearchModal);
+    searchOverlay.addEventListener('click', (e) => {
+      if (e.target === searchOverlay) closeSearchModal();
+    });
+
+    input?.addEventListener('input', (e) => {
+      renderSearchResults(e.target.value.trim());
+    });
+
+    searchOverlay.querySelectorAll('.search-filter-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        searchOverlay.querySelectorAll('.search-filter-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentSearchCategory = pill.dataset.cat;
+        renderSearchResults(input ? input.value.trim() : '');
+      });
+    });
+  }
+
+  searchOverlay.classList.add('open');
+  const input = document.getElementById('search-modal-input');
+  if (input) {
+    input.value = '';
+    setTimeout(() => input.focus(), 80);
+  }
+  renderSearchResults('');
+}
+
+function closeSearchModal() {
+  if (searchOverlay) searchOverlay.classList.remove('open');
+}
+
+function renderSearchResults(query = '') {
+  const resultsContainer = document.getElementById('search-modal-results');
+  if (!resultsContainer) return;
+
+  const allProds = typeof getAllProducts === 'function' ? getAllProducts() : [];
+  const q = query.toLowerCase();
+
+  const filtered = allProds.filter(p => {
+    // Category filter check
+    if (currentSearchCategory !== 'all' && p.category !== currentSearchCategory) {
+      return false;
+    }
+    // Query check
+    if (!q) return true;
+    const matchName = (p.name || '').toLowerCase().includes(q);
+    const matchDesc = (p.desc || '').toLowerCase().includes(q);
+    const matchStorage = (p.storage || []).some(s => s.toLowerCase().includes(q));
+    const matchCategory = (p.category || '').toLowerCase().includes(q);
+    return matchName || matchDesc || matchStorage || matchCategory;
+  });
+
+  if (filtered.length === 0) {
+    resultsContainer.innerHTML = `
+      <div style="padding:2.5rem 1rem;text-align:center;color:#94a3b8;">
+        <div style="font-size:1.8rem;margin-bottom:0.5rem;">🔍</div>
+        <div style="font-weight:700;font-size:1rem;color:#ffffff;margin-bottom:0.25rem;">No devices found for "${query}"</div>
+        <div style="font-size:0.8rem;color:#64748b;">Try searching for "15 Pro", "MacBook Air", "Series 10", or "AirPods".</div>
+      </div>
+    `;
+    return;
+  }
+
+  resultsContainer.innerHTML = filtered.slice(0, 15).map(p => {
+    const minPrice = getMinPrice(p);
+    const hasMultiple = p.storage && p.storage.length > 1;
+    const isPagesDir = window.location.pathname.includes('/products/');
+    const resolvedImg = isPagesDir ? '../' + p.image : p.image;
+    const resolvedFallback = isPagesDir ? '../' + p.imageFallback : p.imageFallback;
+
+    return `
+      <div class="search-result-item" data-product-id="${p.id}" tabindex="0" role="button" aria-label="View ${p.name}">
+        <img class="search-result-img" src="${resolvedImg}" alt="${p.name}" onerror="this.src='${resolvedFallback}'" />
+        <div class="search-result-info">
+          <div class="search-result-name">${p.name}</div>
+          <div class="search-result-meta">${p.category === 'iphones' ? 'Apple iPhone' : p.category === 'laptops' ? 'MacBook & Laptops' : p.category === 'watches' ? 'Apple Watch' : 'Original Gear'} &bull; In Stock</div>
+        </div>
+        <div class="search-result-price">
+          <span style="font-size:0.75rem;color:#94a3b8;font-weight:400;">${hasMultiple ? 'From ' : ''}</span>${formatPrice(minPrice)}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const pid = item.dataset.productId;
+      closeSearchModal();
+      openProductModal(pid);
+    });
+  });
+}
+
+window.openSearchModal = openSearchModal;
+window.closeSearchModal = closeSearchModal;
+
+// Keyboard shortcuts: '/' opens search, 'Escape' closes all open modals
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+    e.preventDefault();
+    openSearchModal();
+  } else if (e.key === 'Escape') {
+    closeSearchModal();
+    const policyModal = document.getElementById('policy-modal-overlay');
+    if (policyModal) policyModal.classList.remove('open');
+    const productModal = document.getElementById('modal-overlay');
+    if (productModal) productModal.classList.remove('open');
+  }
+});
 
 /* ── Home Page Initializer ───────────────────────────────── */
 function renderHomePage() {
