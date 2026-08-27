@@ -174,7 +174,6 @@ function renderOrdersTable() {
   if (filteredOrders.length === 0) {
     tbody.innerHTML = `
       <tr><td colspan="8" class="empty-state" style="padding:2rem;text-align:center;color:#636366;">
-        <div class="empty-state__icon">📭</div>
         <div class="empty-state__text">No orders found</div>
       </td></tr>`;
     if (pager) pager.innerHTML = '';
@@ -201,8 +200,8 @@ function renderOrdersTable() {
         <td>
           <button class="action-btn" onclick="openOrderModal('${order.id}')">View</button>
           <a href="https://wa.me/233${(order.phone||'').replace(/^0/,'').replace(/\D/g,'')}" target="_blank" rel="noopener"
-             class="action-btn" style="display:inline-flex;align-items:center;gap:4px;color:#25D366;">
-            💬 WA
+             class="action-btn" style="display:inline-flex;align-items:center;color:#25D366;">
+            WhatsApp
           </a>
         </td>
       </tr>
@@ -269,10 +268,10 @@ function openOrderModal(orderId) {
     <div class="modal-status-row">
       <span style="font-size:0.8rem;color:#86868b;">Update Status:</span>
       <select class="status-select" id="status-select" onchange="updateOrderStatus('${selectedOrder.id}', this.value)">
-        <option value="pending"   ${selectedOrder.status==='pending'   ? 'selected':''}>⏳ Pending</option>
-        <option value="confirmed" ${selectedOrder.status==='confirmed' ? 'selected':''}>✅ Confirmed</option>
-        <option value="delivered" ${selectedOrder.status==='delivered' ? 'selected':''}>🚚 Delivered</option>
-        <option value="cancelled" ${selectedOrder.status==='cancelled' ? 'selected':''}>❌ Cancelled</option>
+        <option value="pending"   ${selectedOrder.status==='pending'   ? 'selected':''}>Pending</option>
+        <option value="confirmed" ${selectedOrder.status==='confirmed' ? 'selected':''}>Confirmed</option>
+        <option value="delivered" ${selectedOrder.status==='delivered' ? 'selected':''}>Delivered</option>
+        <option value="cancelled" ${selectedOrder.status==='cancelled' ? 'selected':''}>Cancelled</option>
       </select>
     </div>
   `;

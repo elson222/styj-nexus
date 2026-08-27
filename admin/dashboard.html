@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,6 +11,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <style>
     @keyframes toastIn { from { opacity:0;transform:translateY(20px) scale(0.9); } to { opacity:1;transform:none; } }
+    .admin-sidebar__logo span { font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 1rem; color: #f5f5f7; }
+    .admin-sidebar__logo span span { color: #0a84ff; font-weight: 600; }
   </style>
 </head>
 <body class="admin-body">
@@ -23,29 +25,28 @@
     <!-- ── Sidebar ── -->
     <aside class="admin-sidebar" id="admin-sidebar" role="navigation" aria-label="Admin navigation">
       <div class="admin-sidebar__logo">
-        <div class="admin-sidebar__logo-icon">⚡</div>
-        <span>STY.J Admin</span>
+        <span>STY.J <span>ADMIN</span></span>
       </div>
 
       <nav class="admin-nav">
         <a class="admin-nav-item active" onclick="showSection('orders')">
-          <span class="nav-icon">📦</span> Orders
+          Orders
           <span class="admin-nav-badge" id="pending-badge">0</span>
         </a>
         <a class="admin-nav-item" onclick="showSection('products')">
-          <span class="nav-icon">📱</span> Products & Prices
+          Products &amp; Prices
         </a>
         <a class="admin-nav-item" href="../index.html" target="_blank" rel="noopener">
-          <span class="nav-icon">🌐</span> View Store
+          View Storefront
         </a>
         <a class="admin-nav-item" href="https://wa.me/233553714373" target="_blank" rel="noopener">
-          <span class="nav-icon">💬</span> WhatsApp
+          WhatsApp Direct
         </a>
       </nav>
 
       <div class="admin-sidebar__bottom">
         <a class="admin-nav-item" id="logout-btn" style="cursor:pointer;color:#ff453a;">
-          <span class="nav-icon">🚪</span> Logout
+          Sign Out
         </a>
       </div>
     </aside>
@@ -56,7 +57,7 @@
       <!-- Top Bar -->
       <div class="admin-topbar">
         <div class="admin-topbar__left">
-          <button class="admin-menu-btn" id="admin-menu-btn" aria-label="Toggle menu">☰</button>
+          <button class="admin-menu-btn" id="admin-menu-btn" aria-label="Toggle menu">&#9776;</button>
           <div>
             <div class="admin-topbar__title" id="section-title">Orders</div>
             <div class="admin-topbar__sub" id="section-sub">Real-time order management</div>
@@ -64,7 +65,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:0.75rem;">
           <span style="font-size:0.75rem;color:#636366;display:none;" id="last-updated"></span>
-          <a href="tel:0553714373" style="font-size:0.8rem;color:#0a84ff;font-weight:600;">📞 0553714373</a>
+          <a href="tel:0553714373" style="font-size:0.85rem;color:#0a84ff;font-weight:600;">055 371 4373</a>
         </div>
       </div>
 
@@ -80,7 +81,7 @@
           <div class="stat-card">
             <div class="stat-card__label">Pending</div>
             <div class="stat-card__value" id="stat-pending" style="color:#ff9f0a;">—</div>
-            <div class="stat-card__change" style="color:#ff9f0a;">Needs action</div>
+            <div class="stat-card__change" style="color:#ff9f0a;">Awaiting fulfillment</div>
           </div>
           <div class="stat-card">
             <div class="stat-card__label">Delivered</div>
@@ -90,24 +91,24 @@
           <div class="stat-card">
             <div class="stat-card__label">Revenue</div>
             <div class="stat-card__value" id="stat-revenue" style="color:#0a84ff;">—</div>
-            <div class="stat-card__change up">Excl. cancelled</div>
+            <div class="stat-card__change up">Active orders</div>
           </div>
         </div>
 
         <!-- Status Tabs -->
         <div class="tab-bar" role="tablist" aria-label="Filter orders by status">
           <button class="tab active" data-status="all" role="tab">All</button>
-          <button class="tab" data-status="pending" role="tab">⏳ Pending</button>
-          <button class="tab" data-status="confirmed" role="tab">✅ Confirmed</button>
-          <button class="tab" data-status="delivered" role="tab">🚚 Delivered</button>
-          <button class="tab" data-status="cancelled" role="tab">❌ Cancelled</button>
+          <button class="tab" data-status="pending" role="tab">Pending</button>
+          <button class="tab" data-status="confirmed" role="tab">Confirmed</button>
+          <button class="tab" data-status="delivered" role="tab">Delivered</button>
+          <button class="tab" data-status="cancelled" role="tab">Cancelled</button>
         </div>
 
         <!-- Orders Table -->
         <div class="orders-card">
           <div class="orders-header">
-            <span class="orders-title">📦 Customer Orders</span>
-            <input type="search" class="orders-search" id="orders-search" placeholder="🔍 Search name, phone…" aria-label="Search orders"/>
+            <span class="orders-title">Customer Orders</span>
+            <input type="search" class="orders-search" id="orders-search" placeholder="Search by name or phone..." aria-label="Search orders"/>
           </div>
           <div class="orders-table-wrap">
             <table class="orders-table" role="table" aria-label="Orders">
@@ -125,8 +126,7 @@
               </thead>
               <tbody id="orders-tbody">
                 <tr><td colspan="8" style="text-align:center;padding:3rem;color:#636366;">
-                  <div style="font-size:2rem;margin-bottom:0.5rem;">📡</div>
-                  Connecting to database…
+                  Connecting to live database...
                 </td></tr>
               </tbody>
             </table>
@@ -136,16 +136,16 @@
       </section>
 
       <!-- ── Products & Prices Section ── -->
-      <section id="section-products" style="display:none;" id="products-section">
+      <section id="section-products" style="display:none;">
         <div class="orders-card" style="margin-bottom:1.5rem;">
           <div class="orders-header">
-            <span class="orders-title">📱 Manage Products & Prices</span>
-            <button class="action-btn" id="save-products-btn" style="background:#0a84ff;border-color:#0a84ff;color:#fff;font-weight:700;padding:0.5rem 1rem;">
-              💾 Save Prices
+            <span class="orders-title">Manage Products &amp; Prices</span>
+            <button class="action-btn" id="save-products-btn" style="background:#0a84ff;border-color:#0a84ff;color:#fff;font-weight:700;padding:0.5rem 1.2rem;">
+              Save Prices
             </button>
           </div>
           <div style="padding:0.75rem 1rem;font-size:0.75rem;color:#ff9f0a;background:rgba(255,159,10,0.08);border-bottom:1px solid rgba(255,255,255,0.06);">
-            ⚠️ Edit the price fields below and click "Save Prices" to update the store.
+            Adjust price fields and click "Save Prices" to update store prices in real-time.
           </div>
           <div id="admin-products-list"></div>
         </div>
@@ -158,15 +158,14 @@
   <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-label="Order details">
     <div class="modal">
       <div class="modal__header">
-        <h2 class="modal__title">📦 Order Details</h2>
-        <button class="modal__close" id="modal-close" aria-label="Close">✕</button>
+        <h2 class="modal__title">Order Details</h2>
+        <button class="modal__close" id="modal-close" aria-label="Close">&#10005;</button>
       </div>
       <div id="modal-content"></div>
     </div>
   </div>
 
   <script>
-    // Section switcher
     function showSection(name) {
       document.getElementById('section-orders').style.display  = name === 'orders'   ? 'block' : 'none';
       document.getElementById('section-products').style.display = name === 'products' ? 'block' : 'none';
@@ -175,23 +174,28 @@
       document.querySelectorAll('.admin-nav-item').forEach((el, i) => {
         el.classList.toggle('active', i === (name === 'orders' ? 0 : 1));
       });
-      // Close mobile sidebar
       document.getElementById('admin-sidebar')?.classList.remove('open');
       document.getElementById('admin-overlay')?.classList.remove('show');
     }
 
-    // Update pending badge
     window.addEventListener('orders:loaded', (e) => {
       const pending = (e.detail?.orders || []).filter(o => o.status === 'pending').length;
       const badge = document.getElementById('pending-badge');
       if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'flex' : 'none'; }
     });
 
-    const firebaseConfig = { apiKey:"AIzaSyCLUI_WsWZKCAEims4ffoMGFEdJFEIL5Ac", authDomain:"styj-nexus.firebaseapp.com", projectId:"styj-nexus", storageBucket:"styj-nexus.firebasestorage.app", messagingSenderId:"1008828465224", appId:"1:1008828465224:web:f87f7b03e642cda4ba987d", measurementId:"G-WJS97K0NL4" };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLUI_WsWZKCAEims4ffoMGFEdJFEIL5Ac",
+      authDomain: "styj-nexus.firebaseapp.com",
+      projectId: "styj-nexus",
+      storageBucket: "styj-nexus.firebasestorage.app",
+      messagingSenderId: "1008828465224",
+      appId: "1:1008828465224:web:f87f7b03e642cda4ba987d",
+      measurementId: "G-WJS97K0NL4"
+    };
     if (typeof firebase !== 'undefined') firebase.initializeApp(firebaseConfig);
   </script>
   <script src="../assets/js/products.js"></script>
   <script src="../assets/js/admin.js"></script>
 </body>
 </html>
-

@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Shop Apple Watch Series 10, Ultra 2 and SE in Ghana. STY. J Tech Hub."/>
+  <meta name="description" content="Shop Apple Watch Series 10, Ultra 2 and SE in Ghana. 100% authentic, delivered. STY. J Tech Hub."/>
   <meta name="theme-color" content="#08080e"/>
-  <title>Apple Watches — STY. J Nexus</title>
+  <title>Apple Watch — STY. J Nexus</title>
   <link rel="icon" href="../assets/images/logo.svg" type="image/svg+xml"/>
   <link rel="stylesheet" href="../assets/css/main.css"/>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -12,58 +12,65 @@
 </head>
 <body data-category="watches">
   <nav class="navbar"><div class="navbar__inner">
-    <a href="../index.html" class="navbar__logo"><div class="navbar__logo-icon">⚡</div><span class="navbar__logo-text">STY.J <span>NEXUS</span></span></a>
+    <a href="../index.html" class="navbar__logo">
+      <span class="navbar__logo-text">STY.J <span>NEXUS</span></span>
+    </a>
     <nav class="navbar__nav">
-      <a href="iphones.html">📱 iPhones</a><a href="laptops.html">💻 Laptops</a>
-      <a href="watches.html" class="active">⌚ Watches</a><a href="accessories.html">🎧 Accessories</a>
+      <a href="iphones.html">iPhones</a><a href="laptops.html">Laptops</a>
+      <a href="watches.html" class="active">Apple Watch</a><a href="accessories.html">Accessories</a>
     </nav>
     <div class="navbar__actions">
-      <a href="../cart.html" class="cart-btn">🛒<span class="cart-badge"></span></a>
+      <a href="../cart.html" class="cart-btn" aria-label="Shopping bag">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span class="cart-badge"></span>
+      </a>
       <button class="menu-toggle" id="menu-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </div></nav>
   <div class="mobile-drawer" id="mobile-drawer">
-    <a href="iphones.html">📱 iPhones</a><a href="laptops.html">💻 Laptops</a>
-    <a href="watches.html">⌚ Watches</a><a href="accessories.html">🎧 Accessories</a>
-    <a href="../cart.html">🛒 My Cart</a><a href="tel:0553714373" style="color:var(--clr-green);">📞 0553714373</a>
+    <a href="iphones.html">iPhones (X to 16 Pro Max)</a><a href="laptops.html">Laptops & MacBooks</a>
+    <a href="watches.html" class="active">Apple Watch</a><a href="accessories.html">Accessories</a>
+    <a href="../cart.html">Shopping Cart</a><a href="tel:0553714373" style="color:var(--clr-blue);font-weight:600;">Call 055 371 4373</a>
   </div>
 
   <header class="page-header">
     <div class="container">
-      <span class="badge badge-gold" style="margin-bottom:1rem;display:inline-flex;">⌚ Apple Watch</span>
+      <span class="badge badge-gold" style="margin-bottom:1rem;display:inline-flex;">Wearables</span>
       <h1 class="page-header__title">Time, Redefined.<br/><span style="background:linear-gradient(135deg,#ff9f0a,#ff453a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">On Your Wrist.</span></h1>
-      <p class="page-header__sub">Apple Watch Ultra 2, Series 10 & SE — track your fitness, health and life.</p>
+      <p class="page-header__sub">Apple Watch Ultra 2, Series 10 & SE — track workouts, ECG, heart rate, sleep metrics and cellular connectivity.</p>
     </div>
   </header>
 
   <div class="container">
     <div class="filter-bar" role="group" aria-label="Filter watches">
-      <button class="filter-chip active" data-filter="all">All Watches</button>
-      <button class="filter-chip" data-filter="new">🆕 New</button>
-      <button class="filter-chip" data-filter="value">💰 Value</button>
+      <button class="filter-chip active" data-filter="all">All Models</button>
+      <button class="filter-chip" data-filter="new">Series 10 & Ultra</button>
+      <button class="filter-chip" data-filter="value">SE Edition</button>
     </div>
   </div>
 
   <main class="container" style="padding-bottom:5rem;">
-    <div class="products-grid" id="products-grid" role="list" aria-label="Apple Watch products" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));max-width:900px;"></div>
+    <div class="products-grid" id="products-grid" role="list" aria-label="Apple Watch products" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));max-width:960px;"></div>
   </main>
 
   <section style="padding:3rem 0 5rem;">
     <div class="container">
       <div class="cta-banner reveal">
-        <h2 class="cta-banner__title">Need help choosing<br/>the right watch? ⌚</h2>
-        <p class="cta-banner__sub">Ultra 2, Series 10, or SE — chat with us and we'll guide you.</p>
+        <h2 class="cta-banner__title">Need Help Choosing the Right Case Size?</h2>
+        <p class="cta-banner__sub">From 40mm to 49mm Titanium, we'll recommend the ideal watch size and band style for your wrist.</p>
         <div class="cta-banner__actions">
-          <a href="https://wa.me/233553714373?text=Hi!%20I%20need%20help%20choosing%20an%20Apple%20Watch." target="_blank" rel="noopener" class="btn btn-wa btn-lg">💬 WhatsApp Us</a>
-          <a href="tel:0553714373" class="btn btn-glass btn-lg">📞 0553714373</a>
+          <a href="https://wa.me/233553714373?text=Hi!%20I%20need%20help%20choosing%20an%20Apple%20Watch." target="_blank" rel="noopener" class="btn btn-wa btn-lg">Chat on WhatsApp</a>
+          <a href="tel:0553714373" class="btn btn-glass btn-lg">Call 055 371 4373</a>
         </div>
       </div>
     </div>
   </section>
 
   <footer class="footer"><div class="container"><div class="footer__bottom" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:1.5rem;">
-    <a href="../index.html" class="navbar__logo"><div class="navbar__logo-icon" style="width:28px;height:28px;font-size:14px;border-radius:8px;">⚡</div><span class="navbar__logo-text" style="font-size:0.9rem;">STY.J <span>NEXUS</span></span></a>
-    <span style="font-size:0.8rem;color:var(--clr-text-3);">© 2025 STY. J Tech Hub · 0553714373</span>
+    <a href="../index.html" class="navbar__logo">
+      <span class="navbar__logo-text" style="font-size:1rem;">STY.J <span>NEXUS</span></span>
+    </a>
+    <span style="font-size:0.8rem;color:var(--clr-text-3);">&copy; 2025 STY. J Tech Hub &middot; 055 371 4373</span>
   </div></div></footer>
 
   <a class="fab-wa" href="https://wa.me/233553714373?text=Hi%20STY.%20J!%20I%27m%20interested%20in%20an%20Apple%20Watch." target="_blank" rel="noopener" aria-label="WhatsApp">
@@ -71,11 +78,18 @@
   </a>
 
   <script>
-    const firebaseConfig = { apiKey:"AIzaSyCLUI_WsWZKCAEims4ffoMGFEdJFEIL5Ac", authDomain:"styj-nexus.firebaseapp.com", projectId:"styj-nexus", storageBucket:"styj-nexus.firebasestorage.app", messagingSenderId:"1008828465224", appId:"1:1008828465224:web:f87f7b03e642cda4ba987d", measurementId:"G-WJS97K0NL4" };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLUI_WsWZKCAEims4ffoMGFEdJFEIL5Ac",
+      authDomain: "styj-nexus.firebaseapp.com",
+      projectId: "styj-nexus",
+      storageBucket: "styj-nexus.firebasestorage.app",
+      messagingSenderId: "1008828465224",
+      appId: "1:1008828465224:web:f87f7b03e642cda4ba987d",
+      measurementId: "G-WJS97K0NL4"
+    };
     if (typeof firebase !== 'undefined') firebase.initializeApp(firebaseConfig);
   </script>
   <script src="../assets/js/products.js"></script>
   <script src="../assets/js/app.js"></script>
 </body>
 </html>
-

@@ -46,7 +46,7 @@ const Cart = (() => {
       });
     }
     save(items);
-    showToast(`✅ ${product.name} added to cart`);
+    showToast(`${product.name} added to cart`);
   }
 
   function removeItem(id, variant) {
@@ -176,7 +176,7 @@ function buildProductCard(product, size = 'normal') {
       </div>
       <div class="product-card__actions">
         <button class="btn btn-primary btn-sm add-to-cart" data-product-id="${product.id}">
-          🛒 Add to Cart
+          Add to Cart
         </button>
         <a href="${buildWhatsAppLink(`Hi! I'm interested in the ${product.name}. Is it available?`)}"
            target="_blank" rel="noopener"
@@ -195,10 +195,10 @@ function buildProductCard(product, size = 'normal') {
     Cart.addItem(product, variant);
     // Animate button
     const btn = card.querySelector('.add-to-cart');
-    btn.textContent = '✓ Added!';
+    btn.textContent = 'Added';
     btn.style.background = 'var(--clr-green)';
     setTimeout(() => {
-      btn.innerHTML = '🛒 Add to Cart';
+      btn.innerHTML = 'Add to Cart';
       btn.style.background = '';
     }, 1500);
   });
