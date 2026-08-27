@@ -132,7 +132,7 @@ function initNavbar() {
   });
 }
 
-/* ── Product Card Builder (Clean White, No On-Card Specs) ── */
+/* ── Product Card Builder (Evanex-Inspired Split Card) ── */
 function buildProductCard(product) {
   const minPrice = getMinPrice(product);
   const defaultVariant = product.storage ? product.storage[0] : '';
@@ -148,12 +148,25 @@ function buildProductCard(product) {
   const inCartItem = Cart.getItems().find(i => i.id === product.id);
   const inCartClass = inCartItem ? ' in-cart' : '';
   const inCartContent = inCartItem
-    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>In Cart (${inCartItem.qty})`
-    : 'Add to Cart';
+    ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>In Cart (${inCartItem.qty})`
+    : '+ Add';
+
+  const categoryTag = product.category === 'iphones'
+    ? (defaultVariant ? defaultVariant + ' · VERIFIED' : 'APPLE IPHONE')
+    : (product.category === 'laptops'
+      ? (product.storage ? product.storage[0] + ' · PRO LAPTOP' : 'LAPTOP')
+      : (product.category === 'watches' ? 'GPS + CELLULAR' : 'GENUINE APPLE'));
 
   card.innerHTML = `
     <div class="product-card__image-wrap" role="button" tabindex="0" aria-label="View ${product.name} specifications">
       ${product.badge ? `<span class="product-card__badge ${product.badgeType || 'badge-blue'}">${product.badge}</span>` : ''}
+      <button class="product-card__info-btn" aria-label="View specifications" title="View specifications">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </button>
       <img
         class="product-card__image"
         src="${resolvedImg}"
@@ -166,15 +179,19 @@ function buildProductCard(product) {
       />
     </div>
     <div class="product-card__body">
+      <div class="product-card__tag">${categoryTag}</div>
       <h3 class="product-card__name" role="button" tabindex="0">${product.name}</h3>
-      <div class="product-card__price">
-        <span class="from">${hasMultiple ? 'from' : 'Price'}</span>
-        <span class="amount">${formatPrice(minPrice)}</span>
-      </div>
-      <div class="product-card__actions">
-        <button class="add-to-cart${inCartClass}" data-product-id="${product.id}" aria-label="Add ${product.name} to bag">
-          ${inCartContent}
-        </button>
+      <p class="product-card__desc">${product.desc || 'Tested & certified authentic device with 6-month warranty.'}</p>
+      <div class="product-card__footer">
+        <div class="product-card__price">
+          <span class="from">${hasMultiple ? 'From' : ''}</span>
+          <span class="amount">${formatPrice(minPrice)}</span>
+        </div>
+        <div class="product-card__actions">
+          <button class="add-to-cart${inCartClass}" data-product-id="${product.id}" aria-label="Add ${product.name} to bag">
+            ${inCartContent}
+          </button>
+        </div>
       </div>
     </div>
   `;
@@ -183,10 +200,17 @@ function buildProductCard(product) {
   const openModal = () => openProductModal(product.id);
   const imgWrap = card.querySelector('.product-card__image-wrap');
   const nameEl = card.querySelector('.product-card__name');
+  const infoBtn = card.querySelector('.product-card__info-btn');
   imgWrap.addEventListener('click', openModal);
   imgWrap.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); } });
   nameEl.addEventListener('click', openModal);
   nameEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); } });
+  if (infoBtn) {
+    infoBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openModal();
+    });
+  }
 
   // Add to cart click
   card.querySelector('.add-to-cart').addEventListener('click', (e) => {
@@ -473,17 +497,17 @@ function initCheckoutPage() {
 
   if (summaryEl) {
     summaryEl.innerHTML = items.map(i => `
-      <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e5e5ea;font-size:0.875rem;">
+      <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--color-border);font-size:0.875rem;">
         <div>
-          <div style="font-weight:700;color:#1d1d1f;">${i.name}</div>
-          <div style="color:#6e6e73;font-size:0.78rem;">${i.variant} &times; ${i.qty}</div>
+          <div style="font-weight:700;color:#ffffff;">${i.name}</div>
+          <div style="color:var(--color-text-muted);font-size:0.78rem;">${i.variant} &times; ${i.qty}</div>
         </div>
-        <div style="font-weight:700;color:#0071e3;">${formatPrice(i.price * i.qty)}</div>
+        <div style="font-weight:700;color:var(--color-primary);">${formatPrice(i.price * i.qty)}</div>
       </div>
     `).join('') + `
-      <div style="display:flex;justify-content:space-between;padding:0.75rem 0 0;font-size:1.1rem;font-weight:800;color:#1d1d1f;">
+      <div style="display:flex;justify-content:space-between;padding:0.75rem 0 0;font-size:1.1rem;font-weight:800;color:#ffffff;">
         <span>Total</span>
-        <span style="color:#0071e3;">${formatPrice(Cart.getTotal())}</span>
+        <span style="color:var(--color-primary);">${formatPrice(Cart.getTotal())}</span>
       </div>
     `;
   }
@@ -727,10 +751,10 @@ function updateCartButtons() {
     const cartItem = items.find(i => i.id === pid);
     if (cartItem) {
       btn.classList.add('in-cart');
-      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>In Cart (${cartItem.qty})`;
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>In Cart (${cartItem.qty})`;
     } else {
       btn.classList.remove('in-cart');
-      btn.textContent = 'Add to Cart';
+      btn.textContent = '+ Add';
     }
   });
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="theme-color" content="#ffffff"/>
+  <meta name="theme-color" content="#020618"/>
   <title>Direct Checkout — STY. J Nexus Ghana</title>
   <meta name="description" content="Complete your order for verified Apple devices and laptops with doorstep delivery or Accra pickup."/>
   <link rel="canonical" href="https://styj.nexus/checkout.html"/>
@@ -36,17 +36,19 @@
   </nav>
 
   <!-- ── Checkout Main ── -->
-  <main style="padding-top:calc(56px + 2rem);padding-bottom:5rem;min-height:100dvh;background:var(--color-surface-soft);">
-    <div class="container" style="max-width:580px;">
-      <h1 style="font-size:clamp(1.6rem,5vw,2.2rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:0.4rem;">
+  <main style="padding-top:calc(56px + 2rem);padding-bottom:5rem;min-height:100dvh;background:var(--color-background);">
+    <div class="container" style="max-width:680px;">
+      <!-- Breadcrumb / Back -->
+      <a href="cart.html" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--clr-text-2);margin-bottom:1.5rem;font-weight:600;">
+        &larr; Back to Bag
+      </a>
+
+      <h1 style="font-size:clamp(1.5rem, 4vw, 2rem);font-weight:800;letter-spacing:-0.03em;color:var(--clr-text);margin-bottom:1.5rem;">
         Checkout
       </h1>
-      <p style="color:var(--clr-text-2);font-size:0.9rem;margin-bottom:1.5rem;">
-        Enter your delivery address and contact details. We confirm stock and coordinate dispatch directly with you.
-      </p>
 
       <!-- Order Summary Card -->
-      <div style="background:var(--clr-bg-alt);border:1px solid var(--clr-border);border-radius:var(--r-lg);padding:1.25rem;margin-bottom:1.5rem;">
+      <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);padding:1.25rem;margin-bottom:1.5rem;">
         <h2 style="font-size:0.8rem;font-weight:700;color:var(--clr-text-2);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.75rem;">
           Your Order Summary
         </h2>
@@ -60,7 +62,7 @@
         <input type="hidden" name="order_total" id="order-total"/>
         <input type="hidden" name="source" value="styj-nexus-website"/>
 
-        <div style="background:#ffffff;border:1px solid var(--clr-border);border-radius:var(--r-xl);padding:1.5rem;box-shadow:var(--shadow-card);display:flex;flex-direction:column;gap:1.25rem;">
+        <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-xl);padding:1.5rem;box-shadow:var(--shadow-card);display:flex;flex-direction:column;gap:1.25rem;">
           <h2 style="font-size:1rem;font-weight:800;color:var(--clr-text);">Delivery Information</h2>
 
           <div class="form-group">
