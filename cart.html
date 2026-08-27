@@ -4,11 +4,23 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#ffffff"/>
-  <title>Shopping Cart — STY. J Nexus</title>
+  <title>Your Shopping Bag — STY. J Nexus Ghana</title>
+  <meta name="description" content="Review your selected iPhones, MacBooks, and Apple accessories. Fast checkout and doorstep delivery across Ghana."/>
+  <link rel="canonical" href="https://styj.nexus/cart.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="STY. J Nexus"/>
+  <meta property="og:title" content="Shopping Bag — STY. J Nexus"/>
+  <meta property="og:description" content="Review your selected Apple devices and accessories. Verified quality and fast delivery in Ghana."/>
+  <meta property="og:url" content="https://styj.nexus/cart.html"/>
+  <meta property="og:image" content="https://styj.nexus/assets/images/hero-ecosystem.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Shopping Bag — STY. J Nexus"/>
+  <meta name="twitter:description" content="Review your selected Apple devices and accessories. Verified quality and fast delivery in Ghana."/>
+  <meta name="twitter:image" content="https://styj.nexus/assets/images/hero-ecosystem.png"/>
+  <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+  <meta name="referrer" content="strict-origin-when-cross-origin"/>
   <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml"/>
   <link rel="stylesheet" href="assets/css/main.css"/>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -116,31 +128,7 @@
     </svg>
   </a>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCLUI_WsWZKCAEims4ffoMGFEdJFEIL5Ac",
-      authDomain: "styj-nexus.firebaseapp.com",
-      projectId: "styj-nexus",
-      storageBucket: "styj-nexus.firebasestorage.app",
-      messagingSenderId: "1008828465224",
-      appId: "1:1008828465224:web:f87f7b03e642cda4ba987d",
-      measurementId: "G-WJS97K0NL4"
-    };
-    if (typeof firebase !== 'undefined') firebase.initializeApp(firebaseConfig);
-  </script>
   <script src="assets/js/products.js"></script>
   <script src="assets/js/app.js"></script>
-  <script>
-    window.addEventListener('cart:updated', () => {
-      const t = Cart.getTotal();
-      const el2 = document.getElementById('cart-total-2');
-      if (el2) el2.textContent = formatPrice(t);
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-      const t = Cart.getTotal();
-      const el2 = document.getElementById('cart-total-2');
-      if (el2) el2.textContent = formatPrice(t);
-    });
-  </script>
 </body>
 </html>

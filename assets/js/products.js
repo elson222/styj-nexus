@@ -790,10 +790,22 @@ function buildWhatsAppLink(message) {
   return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-function buildOrderWhatsAppLink(items) {
-  const lines = items.map(i => `• ${i.name} (${i.variant}) x${i.qty} — ${formatPrice(i.price * i.qty)}`);
+function buildOrderWhatsAppLink(items, customerData = {}, orderRef = '') {
+  const lines = items.map(i => `• ${i.name} (${i.variant}) ×${i.qty} — ${formatPrice(i.price * i.qty)}`);
   const total = items.reduce((s, i) => s + i.price * i.qty, 0);
-  const msg = `Hello ${BUSINESS_NAME}! 👋\n\nI'd like to order:\n${lines.join('\n')}\n\n*Total: ${formatPrice(total)}*\n\nPlease confirm availability and delivery.`;
+  const refHeader = orderRef ? ` [Order #${orderRef}]` : '';
+  let msg = `Hello ${BUSINESS_NAME}! 👋\n\nI just placed an order${refHeader}:\n\n` +
+    `🛒 *ITEMS ORDERED:*\n${lines.join('\n')}\n\n` +
+    `💰 *TOTAL:* ${formatPrice(total)}\n\n` +
+    `👤 *CUSTOMER DETAILS:*\n` +
+    `• Name: ${customerData.name || 'Customer'}\n` +
+    `• Phone: ${customerData.phone || ''}\n` +
+    `• Location: ${customerData.location || ''}\n` +
+    `• Method: ${customerData.delivery_type === 'pickup' ? 'In-Person Pickup (Accra)' : 'Doorstep Delivery (Nationwide)'}\n`;
+  if (customerData.notes && customerData.notes.trim()) {
+    msg += `• Notes: ${customerData.notes.trim()}\n`;
+  }
+  msg += `\nPlease confirm availability and dispatch schedule. Thank you!`;
   return buildWhatsAppLink(msg);
 }
 

@@ -15,16 +15,25 @@ const PAGE_SIZE   = 10;
 let selectedOrder = null;
 let unsubscribe   = null; // Firestore real-time listener
 
-/* ── Auth ────────────────────────────────────────────────── */
-const ADMIN_PASSWORD_HASH = 'styj2024admin'; // Change this — ideally use SHA-256 hashed
+/* ── Auth (SHA-256 Hashed, No Plaintext Passwords) ──────── */
+// SHA-256 hash for store management credential
+const ADMIN_HASH = '6b278789483e503c222f55c063c0bb678da4b0affc92bc7f4cf5aa8d0231064c';
+
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 function checkAuth() {
   return sessionStorage.getItem('styj_admin_auth') === '1';
 }
 
-function login(password) {
-  // Simple password check — for a real upgrade use Firebase Auth
-  if (password === ADMIN_PASSWORD_HASH || password === 'styj2024') {
+async function login(password) {
+  if (!password) return false;
+  const hash = await sha256(password);
+  if (hash === ADMIN_HASH) {
     sessionStorage.setItem('styj_admin_auth', '1');
     return true;
   }
@@ -48,17 +57,41 @@ function initLoginPage() {
     return;
   }
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const pwd = form.querySelector('input[type="password"]').value;
-    if (login(pwd)) {
+    const pwdInput = form.querySelector('input[type="password"]');
+    const pwd = pwdInput ? pwdInput.value : '';
+    const success = await login(pwd);
+    if (success) {
       window.location.href = 'dashboard.html';
     } else {
       errEl && errEl.classList.add('show');
-      form.querySelector('input[type="password"]').value = '';
+      if (pwdInput) pwdInput.value = '';
       setTimeout(() => errEl && errEl.classList.remove('show'), 3000);
     }
   });
+}
+
+function showSection(name) {
+  document.querySelectorAll('.admin-nav-item[data-section]').forEach(el => {
+    el.classList.toggle('active', el.dataset.section === name);
+  });
+  const secOrders = document.getElementById('section-orders');
+  const secProducts = document.getElementById('section-products');
+  const title = document.getElementById('section-title');
+  const sub = document.getElementById('section-sub');
+
+  if (name === 'orders') {
+    if (secOrders) secOrders.style.display = 'block';
+    if (secProducts) secProducts.style.display = 'none';
+    if (title) title.textContent = 'Orders';
+    if (sub) sub.textContent = 'Real-time order management';
+  } else if (name === 'products') {
+    if (secOrders) secOrders.style.display = 'none';
+    if (secProducts) secProducts.style.display = 'block';
+    if (title) title.textContent = 'Products & Prices';
+    if (sub) sub.textContent = 'Manage device catalog and retail GHS prices';
+  }
 }
 
 /* ── Dashboard Page ──────────────────────────────────────── */
@@ -80,6 +113,15 @@ function initDashboard() {
   overlay?.addEventListener('click', () => {
     sidebar.classList.remove('open');
     overlay.classList.remove('show');
+  });
+
+  // Section switcher navigation
+  document.querySelectorAll('.admin-nav-item[data-section]').forEach(el => {
+    el.addEventListener('click', () => {
+      showSection(el.dataset.section);
+      sidebar?.classList.remove('open');
+      overlay?.classList.remove('show');
+    });
   });
 
   // Logout
@@ -111,6 +153,17 @@ function initDashboard() {
       currentPage = 1;
       renderOrdersTable();
     });
+  });
+
+  // Order view and pagination delegation
+  document.getElementById('orders-tbody')?.addEventListener('click', (e) => {
+    const viewBtn = e.target.closest('[data-view-order]');
+    if (viewBtn) openOrderModal(viewBtn.dataset.viewOrder);
+  });
+
+  document.getElementById('pagination')?.addEventListener('click', (e) => {
+    const pageBtn = e.target.closest('[data-page]');
+    if (pageBtn) goToPage(parseInt(pageBtn.dataset.page, 10));
   });
 
   // Modal close
@@ -198,7 +251,7 @@ function renderOrdersTable() {
         <td>${order.location || '—'}</td>
         <td><span class="status-chip ${order.status || 'pending'}">${capitalize(order.status || 'pending')}</span></td>
         <td>
-          <button class="action-btn" onclick="openOrderModal('${order.id}')">View</button>
+          <button class="action-btn" data-view-order="${order.id}">View</button>
           <a href="https://wa.me/233${(order.phone||'').replace(/^0/,'').replace(/\D/g,'')}" target="_blank" rel="noopener"
              class="action-btn" style="display:inline-flex;align-items:center;color:#25D366;">
             WhatsApp
@@ -213,7 +266,7 @@ function renderOrdersTable() {
     const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
     if (totalPages <= 1) { pager.innerHTML = ''; return; }
     pager.innerHTML = Array.from({ length: totalPages }, (_, i) => `
-      <button class="page-btn ${i + 1 === currentPage ? 'active' : ''}" onclick="goToPage(${i+1})">${i+1}</button>
+      <button class="page-btn ${i + 1 === currentPage ? 'active' : ''}" data-page="${i+1}">${i+1}</button>
     `).join('');
   }
 }
@@ -267,7 +320,7 @@ function openOrderModal(orderId) {
     </div>
     <div class="modal-status-row">
       <span style="font-size:0.8rem;color:#86868b;">Update Status:</span>
-      <select class="status-select" id="status-select" onchange="updateOrderStatus('${selectedOrder.id}', this.value)">
+      <select class="status-select" id="status-select">
         <option value="pending"   ${selectedOrder.status==='pending'   ? 'selected':''}>Pending</option>
         <option value="confirmed" ${selectedOrder.status==='confirmed' ? 'selected':''}>Confirmed</option>
         <option value="delivered" ${selectedOrder.status==='delivered' ? 'selected':''}>Delivered</option>
@@ -275,6 +328,10 @@ function openOrderModal(orderId) {
       </select>
     </div>
   `;
+
+  content.querySelector('#status-select')?.addEventListener('change', (e) => {
+    updateOrderStatus(selectedOrder.id, e.target.value);
+  });
 
   modal.classList.add('open');
 }

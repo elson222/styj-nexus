@@ -4,12 +4,43 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#ffffff"/>
-  <title>Apple Watch Lineup — STY. J Nexus</title>
-  <meta name="description" content="Shop authentic Apple Watch Ultra 2, Series 10 and SE in Ghana. 100% genuine, certified battery health, delivered nationwide."/>
+  <title>Apple Watch in Ghana — Series 10, Ultra 2, SE | STY. J Nexus</title>
+  <meta name="description" content="Authentic Apple Watch in Accra, Ghana. Series 10, Ultra 2, and Watch SE with authentic bands and fast charging. Same-day delivery in Accra."/>
+  <link rel="canonical" href="https://styj.nexus/products/watches.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="STY. J Nexus"/>
+  <meta property="og:title" content="Apple Watch in Ghana — STY. J Nexus"/>
+  <meta property="og:description" content="Authentic Apple Watch in Accra, Ghana. Series 10, Ultra 2, and Watch SE with authentic bands and fast charging. Same-day delivery in Accra."/>
+  <meta property="og:url" content="https://styj.nexus/products/watches.html"/>
+  <meta property="og:image" content="https://styj.nexus/assets/images/products/watch-ultra-2.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Apple Watch in Ghana — STY. J Nexus"/>
+  <meta name="twitter:description" content="Authentic Apple Watch in Accra, Ghana. Series 10, Ultra 2, and Watch SE with authentic bands and fast charging. Same-day delivery in Accra."/>
+  <meta name="twitter:image" content="https://styj.nexus/assets/images/products/watch-ultra-2.png"/>
+  <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+  <meta name="referrer" content="strict-origin-when-cross-origin"/>
   <link rel="icon" href="../assets/images/logo.svg" type="image/svg+xml"/>
   <link rel="stylesheet" href="../assets/css/main.css"/>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://styj.nexus/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Apple Watch",
+        "item": "https://styj.nexus/products/watches.html"
+      }
+    ]
+  }
+  </script>
 </head>
 <body data-category="watches">
 
@@ -117,7 +148,7 @@
           <ul>
             <li><a href="../cart.html">Shopping Cart</a></li>
             <li><a href="../checkout.html">Direct Checkout</a></li>
-            <li><a href="../admin/index.html">Store Admin Portal</a></li>
+            <li><a href="https://wa.me/233553714373" target="_blank" rel="noopener">WhatsApp Support</a></li>
           </ul>
         </div>
       </div>
@@ -137,25 +168,7 @@
     </svg>
   </a>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCLUI_WsWZKCAEims4ffoMGFEdJFEIL5Ac",
-      authDomain: "styj-nexus.firebaseapp.com",
-      projectId: "styj-nexus",
-      storageBucket: "styj-nexus.firebasestorage.app",
-      messagingSenderId: "1008828465224",
-      appId: "1:1008828465224:web:f87f7b03e642cda4ba987d",
-      measurementId: "G-WJS97K0NL4"
-    };
-    if (typeof firebase !== 'undefined') firebase.initializeApp(firebaseConfig);
-  </script>
   <script src="../assets/js/products.js"></script>
   <script src="../assets/js/app.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      renderProductsGrid('products-grid', PRODUCTS.watches);
-      initFilterChips('products-grid', 'watches');
-    });
-  </script>
 </body>
 </html>

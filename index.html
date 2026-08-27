@@ -6,10 +6,43 @@
   <meta name="theme-color" content="#ffffff"/>
   <title>STY. J Nexus — Premium iPhones, Laptops &amp; Apple Gear in Ghana</title>
   <meta name="description" content="Shop authentic iPhones (iPhone X through 17 Pro Max), MacBooks, Windows Laptops &amp; accessories in Ghana at best prices. Fast nationwide delivery &amp; verified quality."/>
+  <link rel="canonical" href="https://styj.nexus/"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="STY. J Nexus"/>
+  <meta property="og:title" content="STY. J Nexus — Apple iPhones, MacBooks &amp; Tech in Ghana"/>
+  <meta property="og:description" content="Shop verified Apple iPhones, MacBooks, laptops &amp; genuine accessories in Accra, Ghana. Guaranteed authentic hardware with nationwide delivery."/>
+  <meta property="og:url" content="https://styj.nexus/"/>
+  <meta property="og:image" content="https://styj.nexus/assets/images/hero-ecosystem.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="STY. J Nexus — Apple iPhones, MacBooks &amp; Tech in Ghana"/>
+  <meta name="twitter:description" content="Shop verified Apple iPhones, MacBooks, laptops &amp; genuine accessories in Accra, Ghana. Guaranteed authentic hardware with nationwide delivery."/>
+  <meta name="twitter:image" content="https://styj.nexus/assets/images/hero-ecosystem.png"/>
+  <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+  <meta name="referrer" content="strict-origin-when-cross-origin"/>
   <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml"/>
   <link rel="stylesheet" href="assets/css/main.css"/>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ElectronicsStore",
+    "name": "STY. J Nexus",
+    "image": "https://styj.nexus/assets/images/hero-ecosystem.png",
+    "url": "https://styj.nexus/",
+    "telephone": "+233553714373",
+    "priceRange": "₵₵₵",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Accra",
+      "addressCountry": "GH"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      "opens": "08:30",
+      "closes": "19:00"
+    }
+  }
+  </script>
 </head>
 <body>
 
@@ -228,7 +261,7 @@
           <ul>
             <li><a href="cart.html">Shopping Cart</a></li>
             <li><a href="checkout.html">Direct Checkout</a></li>
-            <li><a href="admin/index.html">Store Admin Portal</a></li>
+            <li><a href="https://wa.me/233553714373" target="_blank" rel="noopener">WhatsApp Support</a></li>
           </ul>
         </div>
       </div>
@@ -249,30 +282,7 @@
   </a>
 
   <!-- Scripts -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCLUI_WsWZKCAEims4ffoMGFEdJFEIL5Ac",
-      authDomain: "styj-nexus.firebaseapp.com",
-      projectId: "styj-nexus",
-      storageBucket: "styj-nexus.firebasestorage.app",
-      messagingSenderId: "1008828465224",
-      appId: "1:1008828465224:web:f87f7b03e642cda4ba987d",
-      measurementId: "G-WJS97K0NL4"
-    };
-    if (typeof firebase !== 'undefined') firebase.initializeApp(firebaseConfig);
-  </script>
   <script src="assets/js/products.js"></script>
   <script src="assets/js/app.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Render 4 top featured iPhones
-      const featuredIphones = PRODUCTS.iphones.slice(0, 4);
-      renderProductsGrid('home-iphones-grid', featuredIphones);
-
-      // Render 4 top featured laptops
-      const featuredLaptops = PRODUCTS.laptops.slice(0, 4);
-      renderProductsGrid('home-laptops-grid', featuredLaptops);
-    });
-  </script>
 </body>
 </html>

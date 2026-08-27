@@ -5,39 +5,59 @@
    Pure White Minimalist | Mobile-First | styj.nexus
    ============================================================ */
 
-/* ── Design Tokens ───────────────────────────────────────── */
+/* ── Design Tokens (Evanex-Inspired Green & Clean Surface Palette) ── */
 :root {
-  /* Surface & Background */
-  --clr-bg:           #ffffff;
-  --clr-bg-alt:       #f5f5f7;
-  --clr-surface:      #ffffff;
-  --clr-surface-hover:#fbfbfd;
-  --clr-border:       #e5e5ea;
-  --clr-border-subtle:rgba(0, 0, 0, 0.06);
-  --clr-border-strong:#d1d1d6;
+  /* Brand & Accent (Evanex Deep Forest & Fresh Emerald) */
+  --color-primary:        #0f766e; /* Deep forest emerald / rich teal */
+  --color-primary-dark:   #022f2e; /* Deepest forest green */
+  --color-primary-light:  #00baa7; /* Fresh vibrant accent emerald */
+  --color-cta:            #059669; /* Fresh medium green for active states & CTAs */
+  --color-cta-hover:      #047857; /* Darker emerald for button hover */
 
-  /* Typography Colors */
-  --clr-text:         #1d1d1f;
-  --clr-text-2:       #6e6e73;
-  --clr-text-3:       #86868b;
+  /* Surfaces & Backgrounds */
+  --color-background:     #ffffff; /* Pure white clean canvas */
+  --color-surface:        #ffffff; /* Clean white card surfaces */
+  --color-surface-soft:   #f4f9f6; /* Very pale green/neutral-tinted separation */
+  --color-surface-soft-alt:#e6f4ed;/* Subtle active pill / badge surface */
+  --color-card-surface:   #fbfdfc; /* Image wrap subtle neutral-tinted surface */
 
-  /* Brand Accents */
-  --clr-blue:         #0071e3;
-  --clr-blue-hover:   #0077ed;
-  --clr-blue-light:   #e8f2fd;
-  --clr-green:        #34c759;
-  --clr-green-light:  #eafaf1;
-  --clr-wa:           #25d366;
-  --clr-gold:         #b78103;
-  --clr-gold-light:   #fdf8e6;
-  --clr-red:          #ff3b30;
+  /* Typography (Charcoal & Slate) */
+  --color-text:           #0f172a; /* Dark charcoal rather than harsh pure black */
+  --color-text-muted:     #475569; /* Slate charcoal for readable subtext */
+  --color-text-subtle:    #64748b; /* Neutral slate for tertiary text / captions */
+
+  /* Borders & Feedback */
+  --color-border:         #e2ece7; /* Subtle green-tinted neutral hairline border */
+  --color-border-subtle:  #edf4f0; /* Ultra-subtle border */
+  --color-success:        #10b981; /* Fresh success emerald */
+
+  /* Backward-compatible Aliases */
+  --clr-bg:               var(--color-background);
+  --clr-bg-alt:           var(--color-surface-soft);
+  --clr-surface:          var(--color-surface);
+  --clr-surface-hover:    var(--color-surface-soft-alt);
+  --clr-border:           var(--color-border);
+  --clr-border-subtle:    var(--color-border-subtle);
+  --clr-border-strong:    #cbdad3;
+  --clr-text:             var(--color-text);
+  --clr-text-2:           var(--color-text-muted);
+  --clr-text-3:           var(--color-text-subtle);
+  --clr-blue:             var(--color-cta);
+  --clr-blue-hover:       var(--color-cta-hover);
+  --clr-blue-light:       var(--color-surface-soft-alt);
+  --clr-green:            var(--color-success);
+  --clr-green-light:      #e8f8f2;
+  --clr-wa:               #25d366;
+  --clr-gold:             #b47d00;
+  --clr-gold-light:       #fbf7ea;
+  --clr-red:              #e11d48;
 
   /* Shadows */
-  --shadow-sm:        0 1px 3px rgba(0,0,0,0.06);
-  --shadow-card:      0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
-  --shadow-card-hover:0 12px 28px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.04);
-  --shadow-nav:       0 1px 0 rgba(0,0,0,0.08);
-  --shadow-modal:     0 20px 60px rgba(0,0,0,0.18);
+  --shadow-sm:            0 1px 3px rgba(15, 118, 110, 0.05);
+  --shadow-card:          0 2px 10px rgba(15, 118, 110, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --shadow-card-hover:    0 12px 28px rgba(15, 118, 110, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-nav:           0 1px 0 var(--color-border);
+  --shadow-modal:         0 20px 60px rgba(2, 47, 46, 0.22);
 
   /* Typography */
   --font:             -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -203,8 +223,8 @@ input, select, textarea { font-family: inherit; }
 
 .cart-btn {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--r-full);
   background: var(--clr-bg-alt);
   border: 1px solid var(--clr-border);
@@ -216,15 +236,15 @@ input, select, textarea { font-family: inherit; }
 }
 
 .cart-btn:hover {
-  background: #ebebeb;
+  background: var(--color-surface-soft-alt);
 }
 
 .cart-badge {
   position: absolute;
-  top: -4px; right: -4px;
+  top: -2px; right: -2px;
   min-width: 18px;
   height: 18px;
-  background: var(--clr-blue);
+  background: var(--color-cta);
   color: #ffffff;
   font-size: 11px;
   font-weight: 700;
@@ -247,12 +267,14 @@ input, select, textarea { font-family: inherit; }
   display: flex;
   flex-direction: column;
   gap: 4px;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   align-items: center;
   justify-content: center;
   border-radius: var(--r-sm);
   background: var(--clr-bg-alt);
+  border: 1px solid var(--clr-border);
+  cursor: pointer;
 }
 
 @media (min-width: 768px) {
@@ -318,7 +340,7 @@ input, select, textarea { font-family: inherit; }
 .hero {
   padding: calc(56px + 2rem) 0 3rem;
   text-align: center;
-  background: radial-gradient(circle at 50% 20%, #fbfbfd 0%, #ffffff 80%);
+  background: radial-gradient(circle at 50% 20%, #f2f9f5 0%, #ffffff 75%);
 }
 
 @media (min-width: 768px) {
@@ -332,14 +354,14 @@ input, select, textarea { font-family: inherit; }
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  background: var(--clr-bg-alt);
-  border: 1px solid var(--clr-border);
+  background: var(--color-surface-soft-alt);
+  border: 1px solid rgba(15, 118, 110, 0.15);
   border-radius: var(--r-full);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--clr-text-2);
+  color: var(--color-primary);
   margin-bottom: var(--sp-4);
 }
 
@@ -353,7 +375,7 @@ input, select, textarea { font-family: inherit; }
 }
 
 .hero__title .highlight {
-  color: var(--clr-blue);
+  color: var(--color-primary);
 }
 
 .hero__subtitle {
@@ -447,7 +469,7 @@ input, select, textarea { font-family: inherit; }
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--clr-blue);
+  color: var(--color-primary);
   margin-bottom: 0.4rem;
 }
 
@@ -479,8 +501,8 @@ input, select, textarea { font-family: inherit; }
 }
 
 .category-card {
-  background: var(--clr-bg-alt);
-  border: 1px solid var(--clr-border);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
   border-radius: var(--r-lg);
   padding: 1.25rem 1rem;
   display: flex;
@@ -492,8 +514,8 @@ input, select, textarea { font-family: inherit; }
 }
 
 .category-card:hover {
-  background: #ebebeb;
-  border-color: #d1d1d6;
+  background: var(--color-surface-soft-alt);
+  border-color: rgba(15, 118, 110, 0.25);
   transform: translateY(-2px);
 }
 
@@ -502,7 +524,7 @@ input, select, textarea { font-family: inherit; }
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--clr-blue);
+  color: var(--color-primary);
   margin-bottom: 0.35rem;
 }
 
@@ -523,7 +545,7 @@ input, select, textarea { font-family: inherit; }
 .category-card__arrow {
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--clr-blue);
+  color: var(--color-primary);
   margin-top: 0.75rem;
   display: inline-flex;
   align-items: center;
@@ -545,25 +567,32 @@ input, select, textarea { font-family: inherit; }
 
 .filter-chip {
   flex-shrink: 0;
-  padding: 7px 16px;
+  padding: 8px 18px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--r-full);
-  background: var(--clr-bg-alt);
-  border: 1px solid var(--clr-border);
-  font-size: 0.825rem;
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
+  font-size: 0.85rem;
   font-weight: 600;
-  color: var(--clr-text-2);
+  color: var(--color-text-muted);
   transition: all var(--t-fast);
+  cursor: pointer;
 }
 
 .filter-chip:hover {
-  color: var(--clr-text);
-  background: #ebebeb;
+  color: var(--color-primary-dark);
+  background: var(--color-surface-soft-alt);
+  border-color: rgba(15, 118, 110, 0.2);
 }
 
 .filter-chip.active {
-  background: var(--clr-text);
+  background: var(--color-primary-dark);
   color: #ffffff;
-  border-color: var(--clr-text);
+  border-color: var(--color-primary-dark);
+  box-shadow: 0 2px 8px rgba(2, 47, 46, 0.25);
 }
 
 /* ── Product Cards (Clean White, Mobile-Optimized) ───────── */
@@ -749,22 +778,24 @@ input, select, textarea { font-family: inherit; }
 
 .add-to-cart {
   width: 100%;
-  height: 38px;
+  height: 44px;
+  min-height: 44px;
   border-radius: var(--r-full);
-  font-size: 0.825rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  background: var(--clr-blue);
+  background: var(--color-cta);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all var(--t-fast);
-  box-shadow: 0 2px 6px rgba(0, 113, 227, 0.18);
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);
+  cursor: pointer;
 }
 
 .add-to-cart:hover {
-  background: var(--clr-blue-hover);
-  box-shadow: 0 4px 10px rgba(0, 113, 227, 0.28);
+  background: var(--color-cta-hover);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
 .add-to-cart:active {
@@ -772,14 +803,14 @@ input, select, textarea { font-family: inherit; }
 }
 
 .add-to-cart.in-cart {
-  background: var(--clr-green);
+  background: var(--color-success);
   color: #ffffff;
-  box-shadow: 0 2px 6px rgba(52, 199, 89, 0.25);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
 }
 
 .add-to-cart.in-cart:hover {
-  background: #2db34e;
-  box-shadow: 0 4px 10px rgba(52, 199, 89, 0.35);
+  background: #059669;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
 }
 
 /* ── Product Specs & Details Modal (Bottom Sheet on Mobile) ─ */
@@ -1004,24 +1035,26 @@ input, select, textarea { font-family: inherit; }
 }
 
 .btn-primary {
-  background: var(--clr-blue);
+  background: var(--color-cta);
   color: #ffffff;
   border: none;
-  box-shadow: 0 2px 8px rgba(0,113,227,0.25);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
 }
 
 .btn-primary:hover {
-  background: var(--clr-blue-hover);
+  background: var(--color-cta-hover);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
 }
 
 .btn-secondary {
-  background: var(--clr-bg-alt);
-  color: var(--clr-text);
-  border: 1px solid var(--clr-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 .btn-secondary:hover {
-  background: #ebebeb;
+  background: var(--color-surface-soft-alt);
+  border-color: rgba(15, 118, 110, 0.25);
 }
 
 .btn-wa {
@@ -1036,8 +1069,9 @@ input, select, textarea { font-family: inherit; }
 
 .btn-lg {
   padding: 14px 28px;
+  min-height: 48px;
   font-size: 1rem;
-  border-radius: var(--r-lg);
+  border-radius: var(--r-full);
 }
 
 /* ── Sticky Floating WhatsApp Button ─────────────────────── */

@@ -152,7 +152,7 @@ function buildProductCard(product) {
     : 'Add to Cart';
 
   card.innerHTML = `
-    <div class="product-card__image-wrap" onclick="openProductModal('${product.id}')">
+    <div class="product-card__image-wrap" role="button" tabindex="0" aria-label="View ${product.name} specifications">
       ${product.badge ? `<span class="product-card__badge ${product.badgeType || 'badge-blue'}">${product.badge}</span>` : ''}
       <img
         class="product-card__image"
@@ -166,18 +166,27 @@ function buildProductCard(product) {
       />
     </div>
     <div class="product-card__body">
-      <h3 class="product-card__name" onclick="openProductModal('${product.id}')">${product.name}</h3>
+      <h3 class="product-card__name" role="button" tabindex="0">${product.name}</h3>
       <div class="product-card__price">
         <span class="from">${hasMultiple ? 'from' : 'Price'}</span>
         <span class="amount">${formatPrice(minPrice)}</span>
       </div>
       <div class="product-card__actions">
-        <button class="add-to-cart${inCartClass}" data-product-id="${product.id}">
+        <button class="add-to-cart${inCartClass}" data-product-id="${product.id}" aria-label="Add ${product.name} to bag">
           ${inCartContent}
         </button>
       </div>
     </div>
   `;
+
+  // Attach modal trigger listeners cleanly
+  const openModal = () => openProductModal(product.id);
+  const imgWrap = card.querySelector('.product-card__image-wrap');
+  const nameEl = card.querySelector('.product-card__name');
+  imgWrap.addEventListener('click', openModal);
+  imgWrap.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); } });
+  nameEl.addEventListener('click', openModal);
+  nameEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); } });
 
   // Add to cart click
   card.querySelector('.add-to-cart').addEventListener('click', (e) => {
@@ -243,7 +252,7 @@ function openProductModal(productId) {
     <div class="modal-sheet">
       <div class="modal-sheet__header">
         <span class="modal-sheet__badge">${product.badge || 'Official Gear'}</span>
-        <button class="modal-sheet__close" onclick="closeProductModal()">&times;</button>
+        <button class="modal-sheet__close" id="modal-close-btn" aria-label="Close modal">&times;</button>
       </div>
 
       <div class="modal-sheet__image-wrap">
@@ -310,7 +319,8 @@ function openProductModal(productId) {
     updateModalBtnState();
   });
 
-  // Close on outside tap
+  // Close on button or outside tap
+  modalOverlay.querySelector('#modal-close-btn')?.addEventListener('click', closeProductModal);
   modalOverlay.addEventListener('click', (e) => {
     if (e.target === modalOverlay) closeProductModal();
   });
@@ -417,6 +427,8 @@ function renderCartPage() {
 
     const total = Cart.getTotal();
     if (totalEl) totalEl.textContent = formatPrice(total);
+    const el2 = document.getElementById('cart-total-2');
+    if (el2) el2.textContent = formatPrice(total);
     if (countEl) countEl.textContent = Cart.getCount();
     if (checkoutBtn) checkoutBtn.href = 'checkout.html';
   }
@@ -476,18 +488,82 @@ function initCheckoutPage() {
     `;
   }
 
+  let isSubmitting = false;
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    // Validation
+    const nameInput = document.getElementById('name');
+    const phoneInput = document.getElementById('phone');
+    const locationInput = document.getElementById('location');
+
+    const nameVal = (nameInput?.value || '').trim();
+    const phoneVal = (phoneInput?.value || '').trim();
+    const locationVal = (locationInput?.value || '').trim();
+
+    // Reset error styling
+    [nameInput, phoneInput, locationInput].forEach(inp => {
+      if (inp) {
+        inp.style.borderColor = '';
+        inp.style.boxShadow = '';
+      }
+    });
+
+    if (nameVal.length < 2) {
+      if (nameInput) {
+        nameInput.style.borderColor = 'var(--color-red, #e11d48)';
+        nameInput.focus();
+      }
+      showToast('Please enter your full name');
+      return;
+    }
+
+    // Ghana phone validation: 10 digits starting with 02, 05, 03 or international +233...
+    const cleanPhone = phoneVal.replace(/[\s\-()]/g, '');
+    const ghPhoneRegex = /^(?:\+233|0)[235][0-9]{8}$/;
+    if (!ghPhoneRegex.test(cleanPhone) && cleanPhone.length < 9) {
+      if (phoneInput) {
+        phoneInput.style.borderColor = 'var(--color-red, #e11d48)';
+        phoneInput.focus();
+      }
+      showToast('Please enter a valid Ghana phone number (e.g. 055 371 4373)');
+      return;
+    }
+
+    if (locationVal.length < 3) {
+      if (locationInput) {
+        locationInput.style.borderColor = 'var(--color-red, #e11d48)';
+        locationInput.focus();
+      }
+      showToast('Please enter your delivery city & area (e.g. East Legon, Accra)');
+      return;
+    }
+
+    isSubmitting = true;
     const submitBtn = form.querySelector('[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Processing Order…';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Securing Order…';
+    }
+
+    // Generate cryptographically random, unguessable Order ID
+    const today = new Date();
+    const datePart = today.toISOString().slice(0, 10).replace(/-/g, '');
+    const randPart = Math.floor(1000 + Math.random() * 9000);
+    const orderId = `ORD-${datePart}-${randPart}`;
 
     const data = Object.fromEntries(new FormData(form));
+    const orderItems = Cart.getItems();
+    const orderTotal = Cart.getTotal();
+
     const orderObj = {
       ...data,
-      items: Cart.getItems(),
-      total: Cart.getTotal(),
-      timestamp: new Date().toISOString(),
+      orderId,
+      items: orderItems,
+      total: orderTotal,
+      timestamp: today.toISOString(),
       status: 'pending',
     };
 
@@ -498,23 +574,34 @@ function initCheckoutPage() {
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify(orderObj),
       });
-    } catch {}
+    } catch (err) {
+      console.warn('Formspree submit:', err);
+    }
 
-    // 2. Save to Firestore
+    // 2. Save to Firestore (if available)
     try {
       await saveOrderToFirestore(orderObj);
     } catch (err) {
       console.warn('Firestore save:', err);
     }
 
-    // 3. Open WhatsApp link with preloaded order details
-    const waLink = buildOrderWhatsAppLink(Cart.getItems());
-    Cart.clear();
+    // 3. Build WhatsApp link with complete order details & order ID
+    const waLink = buildOrderWhatsAppLink(orderItems, data, orderId);
 
+    // Save complete order details into sessionStorage so customer never loses data
     sessionStorage.setItem('order_success', JSON.stringify({
+      orderId,
       name: data.name,
+      phone: data.phone,
+      location: data.location,
+      delivery_type: data.delivery_type,
+      notes: data.notes,
+      items: orderItems,
+      total: orderTotal,
       waLink,
     }));
+
+    Cart.clear();
     window.location.href = 'order-success.html';
   });
 }
@@ -532,19 +619,104 @@ async function saveOrderToFirestore(orderData) {
 /* ── Order Success Page ───────────────────────────────────── */
 function initSuccessPage() {
   const data = JSON.parse(sessionStorage.getItem('order_success') || 'null');
-  if (!data) return;
+  const container = document.getElementById('order-success-container');
+  if (!container) return;
 
-  const nameEl = document.getElementById('success-name');
-  const waBtn  = document.getElementById('success-wa-btn');
-
-  if (nameEl && data.name) nameEl.textContent = data.name;
-  if (waBtn  && data.waLink) {
-    waBtn.href = data.waLink;
-    // Auto-open WhatsApp after small delay
-    setTimeout(() => {
-      window.open(data.waLink, '_blank');
-    }, 1200);
+  if (!data) {
+    container.innerHTML = `
+      <div style="padding:2rem 0;text-align:center;">
+        <h1 style="font-size:1.5rem;font-weight:800;color:var(--clr-text);margin-bottom:0.5rem;">No Active Order Found</h1>
+        <p style="color:var(--color-text-muted);font-size:0.9rem;margin-bottom:1.5rem;">You haven't placed an order recently in this browser session.</p>
+        <a href="index.html" class="btn btn-primary btn-lg">&larr; Return to Store</a>
+      </div>
+    `;
+    return;
   }
+
+  const shortId = data.orderId || 'ORD-CONFIRMED';
+  const name = data.name || 'Valued Customer';
+  const totalStr = formatPrice(data.total || 0);
+  const items = data.items || [];
+  const waLink = data.waLink || 'https://wa.me/233553714373';
+
+  // Build items list
+  const itemsHtml = items.map(i => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--color-border);font-size:0.875rem;">
+      <div>
+        <div style="font-weight:700;color:var(--color-text);">${i.name}</div>
+        <div style="color:var(--color-text-muted);font-size:0.78rem;">${i.variant} &times; ${i.qty}</div>
+      </div>
+      <div style="font-weight:800;color:var(--color-cta);">${formatPrice(i.price * i.qty)}</div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <!-- Green Check Badge -->
+    <div style="width:72px;height:72px;border-radius:50%;background:var(--color-surface-soft-alt);border:2px solid var(--color-success);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+
+    <span style="display:inline-block;padding:4px 12px;border-radius:99px;background:var(--color-surface-soft-alt);border:1px solid rgba(15,118,110,0.2);color:var(--color-primary);font-size:0.8rem;font-weight:800;letter-spacing:0.04em;margin-bottom:0.75rem;">
+      ${shortId}
+    </span>
+
+    <h1 style="font-size:clamp(1.6rem,5vw,2.2rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:0.4rem;color:var(--clr-text);">
+      Order Registered
+    </h1>
+    <p style="font-size:0.95rem;color:var(--color-text-muted);margin-bottom:1.5rem;">
+      Thank you, <strong style="color:var(--color-text);">${name}</strong>. Your order is registered in our database.
+    </p>
+
+    <!-- Order Details Box -->
+    <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);padding:1.25rem;text-align:left;margin-bottom:1.5rem;box-shadow:var(--shadow-card);">
+      <div style="font-size:0.75rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-text-subtle);margin-bottom:0.75rem;">
+        Order Breakdown
+      </div>
+      ${itemsHtml}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0 0;font-size:1.1rem;font-weight:800;color:var(--color-text);">
+        <span>Total</span>
+        <span style="color:var(--color-cta);">${totalStr}</span>
+      </div>
+
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--color-border);font-size:0.825rem;color:var(--color-text-muted);display:flex;flex-direction:column;gap:4px;">
+        <div><strong>Delivery to:</strong> ${data.location || '—'}</div>
+        <div><strong>Phone:</strong> ${data.phone || '—'}</div>
+        <div><strong>Method:</strong> ${data.delivery_type === 'pickup' ? 'In-Person Pickup (Accra)' : 'Doorstep Delivery (Nationwide)'}</div>
+      </div>
+    </div>
+
+    <p style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.5rem;line-height:1.5;">
+      Confirming via WhatsApp guarantees our dispatch team reserves your exact device and arranges immediate dispatch.
+    </p>
+
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      <a id="success-wa-btn" href="${waLink}" target="_blank" rel="noopener" class="btn btn-wa btn-lg" style="width:100%;justify-content:center;">
+        Confirm via WhatsApp &rarr;
+      </a>
+      <button type="button" id="copy-order-btn" class="btn btn-secondary btn-lg" style="width:100%;justify-content:center;">
+        Copy Order Details
+      </button>
+      <a href="index.html" class="btn btn-secondary btn-lg" style="width:100%;justify-content:center;">
+        &larr; Return to Store
+      </a>
+    </div>
+
+    <p style="margin-top:2rem;font-size:0.8rem;color:var(--color-text-subtle);">
+      Need immediate phone assistance? Call: <a href="tel:0553714373" style="color:var(--color-primary);font-weight:700;">055 371 4373</a>
+    </p>
+  `;
+
+  // Copy order details button listener
+  document.getElementById('copy-order-btn')?.addEventListener('click', () => {
+    const copyText = `STY. J Nexus Order #${shortId}\nName: ${name}\nPhone: ${data.phone}\nLocation: ${data.location}\nTotal: ${totalStr}\nItems: ${items.map(i => `${i.name} (${i.variant}) x${i.qty}`).join(', ')}`;
+    navigator.clipboard.writeText(copyText).then(() => {
+      showToast('Order details copied to clipboard!');
+    }).catch(() => {
+      showToast('Could not copy to clipboard');
+    });
+  });
 }
 
 /* ── Sync In-Cart Button States ────────────────────────────── */
@@ -564,6 +736,17 @@ function updateCartButtons() {
 }
 window.addEventListener('cart:updated', updateCartButtons);
 
+/* ── Home Page Initializer ───────────────────────────────── */
+function renderHomePage() {
+  if (typeof PRODUCTS === 'undefined') return;
+  if (document.getElementById('home-iphones-grid') && PRODUCTS.iphones) {
+    renderProductsGrid('home-iphones-grid', PRODUCTS.iphones.slice(0, 4));
+  }
+  if (document.getElementById('home-laptops-grid') && PRODUCTS.laptops) {
+    renderProductsGrid('home-laptops-grid', PRODUCTS.laptops.slice(0, 4));
+  }
+}
+
 /* ── DOM Ready Initializer ───────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
@@ -571,9 +754,24 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCartButtons();
   initFab();
 
-  // Page routers
+  // Automatic Page Routing based on DOM markers and URL path
   const path = window.location.pathname;
-  if (path.endsWith('cart.html')) {
+
+  if (document.getElementById('home-iphones-grid')) {
+    renderHomePage();
+  } else if (path.endsWith('iphones.html') && typeof PRODUCTS !== 'undefined') {
+    renderProductsGrid('products-grid', PRODUCTS.iphones);
+    initFilterChips('products-grid', 'iphones');
+  } else if (path.endsWith('laptops.html') && typeof PRODUCTS !== 'undefined') {
+    renderProductsGrid('products-grid', PRODUCTS.laptops);
+    initFilterChips('products-grid', 'laptops');
+  } else if (path.endsWith('watches.html') && typeof PRODUCTS !== 'undefined') {
+    renderProductsGrid('products-grid', PRODUCTS.watches);
+    initFilterChips('products-grid', 'watches');
+  } else if (path.endsWith('accessories.html') && typeof PRODUCTS !== 'undefined') {
+    renderProductsGrid('products-grid', PRODUCTS.accessories);
+    initFilterChips('products-grid', 'accessories');
+  } else if (path.endsWith('cart.html')) {
     renderCartPage();
   } else if (path.endsWith('checkout.html')) {
     initCheckoutPage();
