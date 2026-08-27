@@ -426,12 +426,13 @@ function initCheckoutPage() {
 /* ── Firebase Firestore Integration ─────────────────────── */
 // Firebase config — filled in from your Firebase project settings
 const FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID",
+  apiKey:            "AIzaSyCLUI_WsWZKCAEims4ffoMGFEdJFEIL5Ac",
+  authDomain:        "styj-nexus.firebaseapp.com",
+  projectId:         "styj-nexus",
+  storageBucket:     "styj-nexus.firebasestorage.app",
+  messagingSenderId: "1008828465224",
+  appId:             "1:1008828465224:web:f87f7b03e642cda4ba987d",
+  measurementId:     "G-WJS97K0NL4",
 };
 
 // Firestore helpers (loaded via CDN in HTML)
