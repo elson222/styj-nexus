@@ -385,6 +385,9 @@ function initFilterChips(gridId, category) {
       let products = getProductsByCategory(category);
       if (filter !== 'all') {
         products = products.filter(p => {
+          if (filter === 'watches') return p.category === 'watches';
+          if (filter === 'airpods') return p.id.includes('airpods');
+          if (filter === 'power') return !p.id.includes('airpods') && p.category !== 'watches';
           if (filter === 'featured') return p.featured;
           if (filter === 'flagship') return p.badge === 'Flagship' || p.badge === 'Latest Flagship' || p.badge === 'Powerhouse';
           if (filter === 'value') return p.badge === 'Value' || p.badge === 'Best Value' || p.badge === 'Best Starter' || p.badge === 'Classic';
@@ -883,8 +886,7 @@ function openSearchModal() {
           <button type="button" class="search-filter-pill active" data-cat="all">All Devices</button>
           <button type="button" class="search-filter-pill" data-cat="iphones">iPhones</button>
           <button type="button" class="search-filter-pill" data-cat="laptops">Laptops</button>
-          <button type="button" class="search-filter-pill" data-cat="watches">Apple Watch</button>
-          <button type="button" class="search-filter-pill" data-cat="accessories">Accessories</button>
+          <button type="button" class="search-filter-pill" data-cat="watches-accessories">Watches &amp; Accessories</button>
         </div>
 
         <div class="search-results" id="search-modal-results"></div>
@@ -942,7 +944,9 @@ function renderSearchResults(query = '') {
 
   const filtered = allProds.filter(p => {
     // Category filter check
-    if (currentSearchCategory !== 'all' && p.category !== currentSearchCategory) {
+    if (currentSearchCategory === 'watches-accessories') {
+      if (p.category !== 'watches' && p.category !== 'accessories') return false;
+    } else if (currentSearchCategory !== 'all' && p.category !== currentSearchCategory) {
       return false;
     }
     // Query check
@@ -955,17 +959,62 @@ function renderSearchResults(query = '') {
   });
 
   if (filtered.length === 0) {
+    const rawDevice = query || 'this device';
+    const initialWaMsg = `Hi STY. J Nexus! 👋\n\nI searched your website for "${rawDevice}".\n• Target Budget: ₵5,000 – ₵10,000\n\nDo you have this in stock or can you source it for me?`;
+    const initialWaLink = `https://wa.me/233553714373?text=${encodeURIComponent(initialWaMsg)}`;
+
     resultsContainer.innerHTML = `
-      <div style="padding:2.5rem 1rem;text-align:center;color:#94a3b8;">
-        <div style="font-size:1.8rem;margin-bottom:0.5rem;">🔍</div>
-        <div style="font-weight:700;font-size:1rem;color:#ffffff;margin-bottom:0.25rem;">No devices found for "${query}"</div>
-        <div style="font-size:0.8rem;color:#64748b;">Try searching for "15 Pro", "MacBook Air", "Series 10", or "AirPods".</div>
+      <div class="search-enquiry-card" style="padding:1.5rem 1.25rem;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.12);border-radius:18px;margin:0.5rem 0.25rem;">
+        <div style="font-size:1.6rem;margin-bottom:0.35rem;">📦</div>
+        <div style="font-weight:800;font-size:1.05rem;color:#ffffff;margin-bottom:0.35rem;">
+          Device Not Listed? We Can Source It!
+        </div>
+        <p style="font-size:0.825rem;color:#94a3b8;margin-bottom:1.15rem;line-height:1.45;max-width:440px;margin-left:auto;margin-right:auto;">
+          We carry extensive inventory beyond what is shown online, including custom MacBooks, Dell/HP laptops, and other phone models. Tell us what you need and our Accra store will check live stock immediately:
+        </p>
+
+        <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:340px;margin:0 auto 1.25rem;text-align:left;">
+          <div>
+            <label style="font-size:0.725rem;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px;">Device Requested</label>
+            <input type="text" id="enquiry-device-name" value="${query.replace(/"/g, '&quot;')}" placeholder="e.g. Dell XPS 15, iPhone 12, MacBook Pro M3..." style="width:100%;box-sizing:border-box;background:#070d1f;border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:8px 12px;color:#ffffff;font-size:0.875rem;outline:none;" />
+          </div>
+
+          <div>
+            <label style="font-size:0.725rem;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px;">Your Target Budget</label>
+            <select id="enquiry-device-budget" style="width:100%;box-sizing:border-box;background:#070d1f;border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:8px 12px;color:#ffffff;font-size:0.875rem;outline:none;">
+              <option value="Under ₵5,000">Under ₵5,000</option>
+              <option value="₵5,000 – ₵10,000" selected>₵5,000 – ₵10,000</option>
+              <option value="₵10,000 – ₵18,000">₵10,000 – ₵18,000</option>
+              <option value="₵18,000 – ₵28,000">₵18,000 – ₵28,000</option>
+              <option value="₵28,000+">₵28,000+ (High-End / Pro Spec)</option>
+            </select>
+          </div>
+        </div>
+
+        <a id="enquiry-wa-btn" href="${initialWaLink}" target="_blank" rel="noopener" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border-radius:9999px;font-weight:700;font-size:0.875rem;text-decoration:none;background:#25d366;color:#020618;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884zm8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Direct WhatsApp Enquiry &rarr;
+        </a>
       </div>
     `;
+
+    const devInput = document.getElementById('enquiry-device-name');
+    const bgtSelect = document.getElementById('enquiry-device-budget');
+    const waBtn = document.getElementById('enquiry-wa-btn');
+
+    function updateWaEnquiry() {
+      const dev = (devInput ? devInput.value.trim() : '') || 'a specific device';
+      const bgt = bgtSelect ? bgtSelect.value : 'Flexible';
+      const txt = `Hi STY. J Nexus! 👋\n\nI searched your website for "${dev}".\n• Target Budget: ${bgt}\n\nDo you have this in stock or can you source it for me?`;
+      if (waBtn) waBtn.href = `https://wa.me/233553714373?text=${encodeURIComponent(txt)}`;
+    }
+
+    devInput?.addEventListener('input', updateWaEnquiry);
+    bgtSelect?.addEventListener('change', updateWaEnquiry);
     return;
   }
 
-  resultsContainer.innerHTML = filtered.slice(0, 15).map(p => {
+  const itemsHtml = filtered.slice(0, 15).map(p => {
     const minPrice = getMinPrice(p);
     const hasMultiple = p.storage && p.storage.length > 1;
     const isPagesDir = window.location.pathname.includes('/products/');
@@ -985,6 +1034,19 @@ function renderSearchResults(query = '') {
       </div>
     `;
   }).join('');
+
+  const enquiryFooter = `
+    <div style="padding:0.75rem 1rem;margin-top:0.5rem;border-radius:12px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+      <div style="font-size:0.8rem;color:#94a3b8;">
+        Looking for a different spec or unlisted model?
+      </div>
+      <a href="https://wa.me/233553714373?text=${encodeURIComponent(`Hi STY. J Nexus! I'm looking for a specific configuration of ${query || 'a device'}. What are your available options?`)}" target="_blank" rel="noopener" style="font-size:0.8rem;color:#38bdf8;font-weight:700;white-space:nowrap;text-decoration:none;">
+        WhatsApp Us for Inquiries &rarr;
+      </a>
+    </div>
+  `;
+
+  resultsContainer.innerHTML = itemsHtml + enquiryFooter;
 
   resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
     item.addEventListener('click', () => {
@@ -1041,11 +1103,9 @@ document.addEventListener('DOMContentLoaded', () => {
   } else if (path.endsWith('laptops.html') && typeof PRODUCTS !== 'undefined') {
     renderProductsGrid('products-grid', PRODUCTS.laptops);
     initFilterChips('products-grid', 'laptops');
-  } else if (path.endsWith('watches.html') && typeof PRODUCTS !== 'undefined') {
-    renderProductsGrid('products-grid', PRODUCTS.watches);
-    initFilterChips('products-grid', 'watches');
-  } else if (path.endsWith('accessories.html') && typeof PRODUCTS !== 'undefined') {
-    renderProductsGrid('products-grid', PRODUCTS.accessories);
+  } else if ((path.endsWith('accessories.html') || path.endsWith('watches.html')) && typeof PRODUCTS !== 'undefined') {
+    const combined = getProductsByCategory('accessories');
+    renderProductsGrid('products-grid', combined);
     initFilterChips('products-grid', 'accessories');
   } else if (path.endsWith('cart.html')) {
     renderCartPage();

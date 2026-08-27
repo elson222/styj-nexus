@@ -830,6 +830,9 @@ function getFeaturedProducts() {
 }
 
 function getProductsByCategory(category) {
+  if (category === 'accessories' || category === 'watches' || category === 'watches-accessories') {
+    return [...(PRODUCTS.watches || []), ...(PRODUCTS.accessories || [])];
+  }
   return PRODUCTS[category] || [];
 }
 
