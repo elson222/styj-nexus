@@ -57,17 +57,52 @@ function initLoginPage() {
     return;
   }
 
+  const checkLockout = () => {
+    const lockoutUntil = parseInt(sessionStorage.getItem('styj_lockout_until') || '0', 10);
+    const now = Date.now();
+    if (lockoutUntil > now) {
+      const remainingSec = Math.ceil((lockoutUntil - now) / 1000);
+      if (errEl) {
+        errEl.textContent = `Too many failed attempts. Locked out for ${remainingSec}s.`;
+        errEl.classList.add('show');
+      }
+      form.querySelector('button[type="submit"]').disabled = true;
+      return true;
+    }
+    form.querySelector('button[type="submit"]').disabled = false;
+    return false;
+  };
+
+  checkLockout();
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (checkLockout()) return;
+
     const pwdInput = form.querySelector('input[type="password"]');
     const pwd = pwdInput ? pwdInput.value : '';
     const success = await login(pwd);
     if (success) {
+      sessionStorage.removeItem('styj_failed_attempts');
+      sessionStorage.removeItem('styj_lockout_until');
       window.location.href = 'dashboard.html';
     } else {
-      errEl && errEl.classList.add('show');
-      if (pwdInput) pwdInput.value = '';
-      setTimeout(() => errEl && errEl.classList.remove('show'), 3000);
+      let attempts = parseInt(sessionStorage.getItem('styj_failed_attempts') || '0', 10) + 1;
+      sessionStorage.setItem('styj_failed_attempts', attempts.toString());
+
+      if (attempts >= 5) {
+        const lockoutUntil = Date.now() + 60000;
+        sessionStorage.setItem('styj_lockout_until', lockoutUntil.toString());
+        sessionStorage.removeItem('styj_failed_attempts');
+        checkLockout();
+      } else {
+        if (errEl) {
+          errEl.textContent = `Incorrect password. (${5 - attempts} attempts remaining)`;
+          errEl.classList.add('show');
+        }
+        if (pwdInput) pwdInput.value = '';
+        setTimeout(() => errEl && errEl.classList.remove('show'), 3500);
+      }
     }
   });
 }

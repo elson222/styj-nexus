@@ -182,6 +182,9 @@ function buildProductCard(product) {
       <div class="product-card__tag">${categoryTag}</div>
       <h3 class="product-card__name" role="button" tabindex="0">${product.name}</h3>
       <p class="product-card__desc">${product.desc || 'Tested & certified authentic device with 6-month warranty.'}</p>
+      <div class="product-card__condition">
+        <span class="condition-dot"></span> Condition: ${product.condition || 'Brand New (Sealed)'}
+      </div>
       <div class="product-card__footer">
         <div class="product-card__price">
           <span class="from">${hasMultiple ? 'From' : ''}</span>
@@ -255,8 +258,9 @@ function openProductModal(productId) {
           else if (part.toLowerCase().includes('ram')) label = 'Memory';
           return `<tr><td class="spec-label">${label}</td><td class="spec-value">${part}</td></tr>`;
         }).join('')}
-        <tr><td class="spec-label">Condition</td><td class="spec-value">100% Authentic &amp; Factory Certified</td></tr>
-        <tr><td class="spec-label">Warranty</td><td class="spec-value">Official Store Guarantee &amp; Testing</td></tr>
+        <tr><td class="spec-label">Condition</td><td class="spec-value" style="color:var(--color-primary-light);font-weight:700;">${product.condition || 'Authentic • IMEI Verified'}</td></tr>
+        <tr><td class="spec-label">Warranty</td><td class="spec-value">6-Month Hardware &amp; Battery Warranty</td></tr>
+        <tr><td class="spec-label">Verification</td><td class="spec-value">Clean IMEI • Free Testing Upon Delivery</td></tr>
       </table>`
     : '';
 
@@ -293,12 +297,16 @@ function openProductModal(productId) {
         <span class="price" id="modal-price">${formatPrice(currentPrice)}</span>
       </div>
 
-      <button class="btn btn-primary btn-lg" id="modal-add-btn" style="width:100%;margin-bottom:0.75rem;">
+      <button class="btn btn-primary btn-lg" id="modal-add-btn" style="width:100%;margin-bottom:0.5rem;">
         Add to Cart
       </button>
 
+      <button type="button" class="btn btn-secondary" onclick="openPolicyModal('warranty')" style="width:100%;margin-bottom:0.75rem;font-size:0.8rem;padding:8px 14px;">
+        🛡️ View 6-Month Warranty &amp; Return Terms
+      </button>
+
       <div style="text-align:center;">
-        <a href="${buildWhatsAppLink(`Hi STY. J! I am asking about the ${product.name} (${selectedVariant}).`)}"
+        <a href="${buildWhatsAppLink(`Hi STY. J Nexus! I am asking about the ${product.name} (${selectedVariant}).`)}"
            target="_blank" rel="noopener"
            style="font-size:0.8rem;color:var(--clr-text-2);text-decoration:underline;">
           Have questions? Chat directly on WhatsApp
@@ -690,7 +698,7 @@ function initSuccessPage() {
       Order Registered
     </h1>
     <p style="font-size:0.95rem;color:var(--color-text-muted);margin-bottom:1.5rem;">
-      Thank you, <strong style="color:var(--color-text);">${name}</strong>. Your order is registered in our database.
+      Thank you, <strong style="color:var(--color-text);">${name}</strong>. Your order request has been received and saved.
     </p>
 
     <!-- Order Details Box -->
@@ -712,7 +720,7 @@ function initSuccessPage() {
     </div>
 
     <p style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.5rem;line-height:1.5;">
-      Confirming via WhatsApp guarantees our dispatch team reserves your exact device and arranges immediate dispatch.
+      Connecting on WhatsApp allows our Accra store team to confirm stock availability, device condition, and coordinate your dispatch directly.
     </p>
 
     <div style="display:flex;flex-direction:column;gap:0.75rem;">
@@ -759,6 +767,120 @@ function updateCartButtons() {
   });
 }
 window.addEventListener('cart:updated', updateCartButtons);
+
+/* ── Store Policies Modal System ──────────────────────────── */
+function openPolicyModal(tab = 'warranty') {
+  let modal = document.getElementById('policy-modal-overlay');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'policy-modal-overlay';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal-sheet" style="max-width:620px;">
+        <div class="modal-sheet__header">
+          <div style="font-size:1.1rem;font-weight:800;color:#ffffff;display:flex;align-items:center;gap:8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            STY. J Nexus Store Policies
+          </div>
+          <button class="modal-sheet__close" id="policy-modal-close" aria-label="Close policies">&times;</button>
+        </div>
+
+        <!-- Policy Navigation Tabs -->
+        <div class="filter-bar" style="margin-bottom:1rem;" role="tablist">
+          <button class="filter-chip active" data-tab="warranty" role="tab">6-Month Warranty</button>
+          <button class="filter-chip" data-tab="returns" role="tab">Returns &amp; Exchanges</button>
+          <button class="filter-chip" data-tab="delivery" role="tab">Nationwide Delivery</button>
+          <button class="filter-chip" data-tab="privacy" role="tab">Privacy &amp; Terms</button>
+        </div>
+
+        <!-- Policy Tab Contents -->
+        <div id="policy-tab-warranty" class="policy-tab-content">
+          <h3 style="font-size:1.05rem;font-weight:800;color:#ffffff;margin-bottom:0.5rem;">6-Month Hardware &amp; Battery Warranty</h3>
+          <p style="color:var(--color-text-muted);font-size:0.875rem;line-height:1.5;margin-bottom:1rem;">
+            Every iPhone, MacBook, and Apple Watch sold by STY. J Nexus includes a comprehensive 6-month store warranty protecting you against internal component and hardware defects.
+          </p>
+          <ul style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--color-text-muted);margin-bottom:1rem;">
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Motherboard &amp; Logic Board:</strong> Full coverage for power, chip, and board functionality.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Battery Health Guarantee:</strong> Minimum 85%+ battery health on all UK Used Grade A+ devices; 100% on Brand New devices.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Authenticity Guarantee:</strong> Original Apple displays and cameras — never replaced with cheap aftermarket components.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">IMEI Clean &amp; Unlocked:</strong> Factory unlocked for MTN, Telecel, and AT networks in Ghana and worldwide.</div></li>
+          </ul>
+        </div>
+
+        <div id="policy-tab-returns" class="policy-tab-content" style="display:none;">
+          <h3 style="font-size:1.05rem;font-weight:800;color:#ffffff;margin-bottom:0.5rem;">48-Hour Return &amp; Exchange Guarantee</h3>
+          <p style="color:var(--color-text-muted);font-size:0.875rem;line-height:1.5;margin-bottom:1rem;">
+            We give all customers a 48-hour testing window to inspect and use their device. If any technical discrepancy or defect occurs within 48 hours, you are entitled to an immediate swap or full refund.
+          </p>
+          <ul style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--color-text-muted);margin-bottom:1rem;">
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">On-Delivery Inspection:</strong> For all deliveries within Accra, our courier waits while you test Face ID / Touch ID, cameras, charging, and call quality.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Instant Replacement:</strong> If a fault is confirmed, our store dispatches a replacement device on the same day.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">✓</span> <div><strong style="color:#ffffff;">Eligibility:</strong> Device must remain in the same physical condition as received without user-induced screen cracks, water submersion, or iCloud locks.</div></li>
+          </ul>
+        </div>
+
+        <div id="policy-tab-delivery" class="policy-tab-content" style="display:none;">
+          <h3 style="font-size:1.05rem;font-weight:800;color:#ffffff;margin-bottom:0.5rem;">Nationwide Delivery Across Ghana</h3>
+          <p style="color:var(--color-text-muted);font-size:0.875rem;line-height:1.5;margin-bottom:1rem;">
+            We coordinate safe, insured delivery from our Accra headquarters to all 16 regions of Ghana.
+          </p>
+          <ul style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--color-text-muted);margin-bottom:1rem;">
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🚚</span> <div><strong style="color:#ffffff;">Greater Accra &amp; Tema:</strong> Same-day dispatch within 1–3 hours of confirmation. Cash or MoMo on delivery accepted.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🚚</span> <div><strong style="color:#ffffff;">Kumasi, Takoradi, Sunyani, Cape Coast:</strong> Next-day delivery to your doorstep or trusted courier hub.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🚚</span> <div><strong style="color:#ffffff;">Northern &amp; All Other Regions:</strong> 24–48 hours via tracked transport services (VIP / FedEx).</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">📍</span> <div><strong style="color:#ffffff;">In-Person Pickup:</strong> Available daily in Accra by appointment.</div></li>
+          </ul>
+        </div>
+
+        <div id="policy-tab-privacy" class="policy-tab-content" style="display:none;">
+          <h3 style="font-size:1.05rem;font-weight:800;color:#ffffff;margin-bottom:0.5rem;">Privacy Policy &amp; Terms of Service</h3>
+          <p style="color:var(--color-text-muted);font-size:0.875rem;line-height:1.5;margin-bottom:1rem;">
+            STY. J Nexus values your privacy. We collect only the information necessary to fulfill your order and communicate delivery updates.
+          </p>
+          <ul style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--color-text-muted);margin-bottom:1rem;">
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🔒</span> <div><strong style="color:#ffffff;">Data Confidentiality:</strong> Your name, phone number, and address are strictly used for delivery coordination. We never share or sell customer data.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🔒</span> <div><strong style="color:#ffffff;">Stock Confirmation:</strong> Submitting an order reserves your request. Final availability and delivery time are verified via WhatsApp/call prior to dispatch.</div></li>
+            <li style="display:flex;gap:8px;"><span style="color:var(--color-primary);font-weight:700;">🔒</span> <div><strong style="color:#ffffff;">Legal Identity:</strong> &copy; 2026 STY. J Nexus. Operating from Accra, Ghana.</div></li>
+          </ul>
+        </div>
+
+        <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+          <button type="button" class="btn btn-primary" id="policy-modal-dismiss" style="padding:8px 20px;">Got It</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Close listeners
+    const closeModal = () => modal.classList.remove('open');
+    document.getElementById('policy-modal-close')?.addEventListener('click', closeModal);
+    document.getElementById('policy-modal-dismiss')?.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    // Tab switching
+    modal.querySelectorAll('.filter-chip[data-tab]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        modal.querySelectorAll('.filter-chip[data-tab]').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const activeTab = chip.dataset.tab;
+        modal.querySelectorAll('.policy-tab-content').forEach(content => {
+          content.style.display = content.id === `policy-tab-${activeTab}` ? 'block' : 'none';
+        });
+      });
+    });
+  }
+
+  // Switch to selected tab
+  modal.querySelectorAll('.filter-chip[data-tab]').forEach(c => {
+    c.classList.toggle('active', c.dataset.tab === tab);
+  });
+  modal.querySelectorAll('.policy-tab-content').forEach(content => {
+    content.style.display = content.id === `policy-tab-${tab}` ? 'block' : 'none';
+  });
+
+  modal.classList.add('open');
+}
+window.openPolicyModal = openPolicyModal;
 
 /* ── Home Page Initializer ───────────────────────────────── */
 function renderHomePage() {

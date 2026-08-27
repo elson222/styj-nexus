@@ -1,0 +1,33 @@
+﻿rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Orders Collection ──────────────────────────────────────────
+    // Insecure Direct Object Reference (IDOR) & Scraping Prevention:
+    // Any prospective buyer can submit (create) a new order document,
+    // but unauthenticated users CANNOT read, query, list, modify, or delete
+    // any orders in the collection.
+    match /orders/{orderId} {
+      // Allow customers to submit orders with required payload validation
+      allow create: if request.resource.data.keys().hasAll(['name', 'phone', 'items', 'total'])
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 1
+                    && request.resource.data.name.size() < 100
+                    && request.resource.data.phone is string
+                    && request.resource.data.phone.size() > 5
+                    && request.resource.data.phone.size() < 30
+                    && request.resource.data.total is number;
+
+      // Only authenticated store staff/admin can read or update orders
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // ── Store Settings & Catalog ──────────────────────────────────
+    match /settings/{settingId} {
+      // Catalog overrides can be read publicly
+      allow read: if true;
+      // Only authenticated admin can update catalog prices
+      allow write: if request.auth != null;
+    }
+  }
+}
