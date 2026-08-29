@@ -13,7 +13,6 @@
   <link rel="stylesheet" href="assets/css/main.css"/>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
 <body>
 
@@ -54,7 +53,7 @@
         Checkout
       </h1>
       <p style="color:var(--clr-text-2);font-size:0.875rem;margin-bottom:1.5rem;">
-        Enter your delivery address and contact details. We confirm stock and coordinate dispatch directly with you.
+        Nationwide Delivery. Complete your order details below.
       </p>
 
       <!-- Order Summary Card -->
@@ -65,19 +64,13 @@
         <div id="checkout-summary"></div>
       </div>
 
-      <!-- Trust & Guarantee Box on Checkout -->
-      <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.22);border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:0.4rem;">
-        <div style="font-size:0.8rem;font-weight:800;color:#38bdf8;text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:6px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          STY. J Nexus Buyer Guarantee
+      <!-- Nationwide Delivery & Guarantee Banner -->
+      <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:var(--r-lg);padding:0.75rem 1rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:0.825rem;color:#ffffff;font-weight:700;display:flex;align-items:center;gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Nationwide Delivery &bull; 48-Hour Guarantee</span>
         </div>
-        <div style="font-size:0.825rem;color:var(--color-text-muted);line-height:1.45;">
-          🔄 <strong>48-Hour Exchange Guarantee</strong> &bull; 🚚 <strong>Accra &amp; Nationwide Delivery</strong> &bull; 🔍 <strong>Free Inspection Upon Handover</strong>
-        </div>
-        <div style="display:flex;gap:1rem;margin-top:0.35rem;font-size:0.78rem;">
-          <a href="javascript:void(0)" onclick="openPolicyModal('returns')" style="color:#38bdf8;text-decoration:underline;">Returns &amp; Exchanges</a>
-          <a href="javascript:void(0)" onclick="openPolicyModal('delivery')" style="color:#38bdf8;text-decoration:underline;">Delivery Terms</a>
-        </div>
+        <a href="javascript:void(0)" onclick="openPolicyModal('returns')" style="color:#38bdf8;font-size:0.78rem;font-weight:700;text-decoration:none;">Store Policies &rarr;</a>
       </div>
 
       <!-- Checkout Form -->
@@ -106,9 +99,9 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="delivery_type">Fulfillment Method</label>
+            <label class="form-label" for="delivery_type">Delivery Option</label>
             <select class="form-input" id="delivery_type" name="delivery_type">
-              <option value="delivery">Doorstep Delivery (Nationwide)</option>
+              <option value="delivery">Nationwide Delivery</option>
               <option value="pickup">In-Person Pickup (Accra)</option>
             </select>
           </div>
@@ -121,49 +114,35 @@
           <!-- ── Payment Methods Selector ── -->
           <div class="form-group" style="margin-top:0.25rem;">
             <label class="form-label" style="font-weight:800;font-size:0.925rem;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
-              <span>Select Payment Option *</span>
-              <span style="font-size:0.725rem;color:var(--clr-blue);font-weight:600;">Secure &amp; Verified</span>
+              <span>Payment Method *</span>
+              <span style="font-size:0.725rem;color:var(--clr-blue);font-weight:600;">Nationwide Delivery</span>
             </label>
 
             <div class="payment-methods-grid" style="display:flex;flex-direction:column;gap:0.75rem;">
               <!-- Option 1: Pay on Delivery -->
-              <label class="payment-method-card active" id="card-pay-delivery" style="display:flex;gap:12px;padding:1rem 1.15rem;border:1px solid #38bdf8;border-radius:14px;background:rgba(56,189,248,0.06);cursor:pointer;transition:all var(--t-fast);">
+              <label class="payment-method-card active" id="card-pay-delivery" style="display:flex;gap:12px;padding:0.9rem 1.1rem;border:1px solid #38bdf8;border-radius:14px;background:rgba(56,189,248,0.06);cursor:pointer;transition:all var(--t-fast);">
                 <input type="radio" name="payment_method" value="pay_on_delivery" checked style="margin-top:3px;accent-color:#38bdf8;" />
                 <div style="flex:1;">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                    <strong style="color:#ffffff;font-size:0.925rem;">1. Pay on Delivery (Accra &amp; Tema)</strong>
-                    <span style="font-size:0.68rem;font-weight:800;padding:2px 8px;border-radius:9999px;background:rgba(56,189,248,0.18);color:#38bdf8;border:1px solid rgba(56,189,248,0.35);">MOST POPULAR</span>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                    <strong style="color:#ffffff;font-size:0.925rem;">1. Pay on Delivery</strong>
+                    <span style="font-size:0.68rem;font-weight:800;padding:2px 8px;border-radius:9999px;background:rgba(56,189,248,0.18);color:#38bdf8;">NATIONWIDE</span>
                   </div>
-                  <p style="font-size:0.8rem;color:#94a3b8;margin-top:0.35rem;line-height:1.45;">
-                    Test Face ID, cameras, battery health, and IMEI in person with our courier before releasing payment via MoMo or cash. 100% risk-free.
+                  <p style="font-size:0.8rem;color:#94a3b8;margin-top:0.25rem;line-height:1.4;">
+                    Inspect device upon delivery before paying via MoMo or cash.
                   </p>
                 </div>
               </label>
 
               <!-- Option 2: Direct MTN MoMo Pay -->
-              <label class="payment-method-card" id="card-momo-pay" style="display:flex;gap:12px;padding:1rem 1.15rem;border:1px solid rgba(255,255,255,0.12);border-radius:14px;background:rgba(255,255,255,0.02);cursor:pointer;transition:all var(--t-fast);">
+              <label class="payment-method-card" id="card-momo-pay" style="display:flex;gap:12px;padding:0.9rem 1.1rem;border:1px solid rgba(255,255,255,0.12);border-radius:14px;background:rgba(255,255,255,0.02);cursor:pointer;transition:all var(--t-fast);">
                 <input type="radio" name="payment_method" value="momo_pay" style="margin-top:3px;accent-color:#38bdf8;" />
                 <div style="flex:1;">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                    <strong style="color:#ffffff;font-size:0.925rem;">2. Direct MTN MoMo Pay / Merchant Till</strong>
-                    <span style="font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:9999px;background:rgba(250,204,21,0.15);color:#facc15;border:1px solid rgba(250,204,21,0.3);">ZERO EXTRA FEE</span>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                    <strong style="color:#ffffff;font-size:0.925rem;">2. Direct MTN MoMo Pay</strong>
+                    <span style="font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:9999px;background:rgba(250,204,21,0.15);color:#facc15;">055 371 4373</span>
                   </div>
-                  <p style="font-size:0.8rem;color:#94a3b8;margin-top:0.35rem;line-height:1.45;">
-                    Direct transfer to the official STY. J Nexus MoMo Merchant Account (<strong>055 371 4373</strong> / Till). Recommended for outside Accra orders (Kumasi, Takoradi, etc.).
-                  </p>
-                </div>
-              </label>
-
-              <!-- Option 3: Paystack Online Card & MoMo -->
-              <label class="payment-method-card" id="card-paystack" style="display:flex;gap:12px;padding:1rem 1.15rem;border:1px solid rgba(255,255,255,0.12);border-radius:14px;background:rgba(255,255,255,0.02);cursor:pointer;transition:all var(--t-fast);">
-                <input type="radio" name="payment_method" value="paystack" style="margin-top:3px;accent-color:#38bdf8;" />
-                <div style="flex:1;">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                    <strong style="color:#ffffff;font-size:0.925rem;">3. Pay Online (Card &amp; Mobile Money)</strong>
-                    <span style="font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:9999px;background:rgba(255,255,255,0.08);color:#e2e8f0;border:1px solid rgba(255,255,255,0.18);">SECURED BY PAYSTACK</span>
-                  </div>
-                  <p style="font-size:0.8rem;color:#94a3b8;margin-top:0.35rem;line-height:1.45;">
-                    Instant automated online checkout. Accepts Visa, Mastercard, MTN MoMo, Telecel Cash, and AT Money with 256-bit bank-grade encryption.
+                  <p style="font-size:0.8rem;color:#94a3b8;margin-top:0.25rem;line-height:1.4;">
+                    Direct transfer to the official STY. J Nexus MoMo Merchant account.
                   </p>
                 </div>
               </label>
@@ -175,7 +154,7 @@
           </button>
 
           <p style="font-size:0.75rem;color:var(--clr-text-3);text-align:center;line-height:1.4;">
-            Your order request will be saved and our Accra dispatch team will verify availability and schedule with you directly.
+            Nationwide Delivery. We confirm your order and schedule dispatch directly with you.
           </p>
         </div>
       </form>

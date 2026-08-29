@@ -7,14 +7,14 @@
 
 /* ── Design Tokens (Evanex-Inspired Dark Navy & Cyan Palette) ── */
 :root {
-  /* Brand & Accent (Evanex Deep Navy & Vibrant Cyan/Teal) */
-  --color-primary:        #00baa7; /* Vibrant cyan/teal brand accent */
+  /* Brand & Accent (Exact #38bdf8 used in store name NEXUS) */
+  --color-primary:        #38bdf8; /* Store name NEXUS blue */
   --color-primary-dark:   #020618; /* Deepest midnight navy */
-  --color-primary-light:  #38bdf8; /* Fresh sky cyan accent */
-  --color-cta:            #00baa7; /* Vibrant cyan/teal for active states & CTAs */
-  --color-cta-hover:      #009ea6; /* Darker teal for button hover */
+  --color-primary-light:  #7dd3fc; /* Light ice blue accent */
+  --color-cta:            #38bdf8; /* Brand blue for active states & CTAs */
+  --color-cta-hover:      #7dd3fc; /* Light blue for button hover */
 
-  /* Surfaces & Backgrounds (Exact Evanex Dark Theme from Screenshots) */
+  /* Surfaces & Backgrounds */
   --color-background:     #020618; /* Deep midnight navy blue canvas */
   --color-surface:        #0b1329; /* Rich navy dark card surface */
   --color-surface-soft:   #060d22; /* Very deep navy for section separation / trust bar */
@@ -30,7 +30,7 @@
   --color-border:         rgba(255, 255, 255, 0.09); /* Subtle crisp hairline border */
   --color-border-subtle:  rgba(255, 255, 255, 0.05); /* Ultra-subtle border */
   --color-border-strong:  rgba(255, 255, 255, 0.18); /* Strong border for inputs & modals */
-  --color-success:        #10b981; /* Fresh success emerald */
+  --color-success:        #38bdf8; /* Brand blue */
 
   /* Backward-compatible Aliases */
   --clr-bg:               var(--color-background);
@@ -46,9 +46,9 @@
   --clr-blue:             #38bdf8;
   --clr-blue-hover:       #7dd3fc;
   --clr-blue-light:       var(--color-surface-soft-alt);
-  --clr-green:            var(--color-success);
-  --clr-green-light:      rgba(16, 185, 129, 0.15);
-  --clr-wa:               #25d366;
+  --clr-green:            #38bdf8;
+  --clr-green-light:      rgba(56, 189, 248, 0.15);
+  --clr-wa:               #38bdf8;
   --clr-gold:             #f59e0b;
   --clr-gold-light:       rgba(245, 158, 11, 0.15);
   --clr-red:              #f43f5e;
@@ -56,7 +56,7 @@
   /* Shadows */
   --shadow-sm:            0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-card:          0 4px 20px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.2);
-  --shadow-card-hover:    0 12px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 186, 167, 0.15);
+  --shadow-card-hover:    0 12px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.15);
   --shadow-nav:           0 1px 0 var(--color-border);
   --shadow-modal:         0 24px 64px rgba(0, 0, 0, 0.85);
 
@@ -864,9 +864,9 @@ input, select, textarea { font-family: inherit; }
   border-radius: var(--r-full);
   font-size: 0.825rem;
   font-weight: 700;
-  background: rgba(0, 186, 167, 0.12);
-  border: 1.5px solid #00baa7;
-  color: #00baa7;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1.5px solid #38bdf8;
+  color: #38bdf8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -875,9 +875,9 @@ input, select, textarea { font-family: inherit; }
 }
 
 .add-to-cart:hover {
-  background: #00baa7;
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 186, 167, 0.35);
+  background: #38bdf8;
+  color: #020618;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
 }
 
 .add-to-cart:active {
@@ -885,15 +885,15 @@ input, select, textarea { font-family: inherit; }
 }
 
 .add-to-cart.in-cart {
-  background: var(--color-success);
-  border-color: var(--color-success);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  background: #38bdf8;
+  border-color: #38bdf8;
+  color: #020618;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.3);
 }
 
 .add-to-cart.in-cart:hover {
-  background: #059669;
-  border-color: #059669;
+  background: #7dd3fc;
+  border-color: #7dd3fc;
 }
 
 /* ── Product Specs & Details Modal (Bottom Sheet on Mobile) ─ */
@@ -1084,9 +1084,9 @@ input, select, textarea { font-family: inherit; }
 }
 
 .variant-pill.active {
-  border-color: var(--color-cta);
-  background: rgba(0, 186, 167, 0.15);
-  color: var(--color-cta);
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
 }
 
 .modal-footer-price {
@@ -1125,15 +1125,17 @@ input, select, textarea { font-family: inherit; }
 }
 
 .btn-primary {
-  background: var(--color-cta);
-  color: #ffffff;
+  background: #38bdf8;
+  color: #020618;
+  font-weight: 700;
   border: none;
-  box-shadow: 0 4px 14px rgba(0, 186, 167, 0.35);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
 }
 
 .btn-primary:hover {
-  background: var(--color-cta-hover);
-  box-shadow: 0 6px 18px rgba(0, 186, 167, 0.45);
+  background: #7dd3fc;
+  color: #020618;
+  box-shadow: 0 6px 18px rgba(56, 189, 248, 0.45);
 }
 
 .btn-secondary {
@@ -1144,17 +1146,19 @@ input, select, textarea { font-family: inherit; }
 
 .btn-secondary:hover {
   background: #0f1c3d;
-  border-color: rgba(0, 186, 167, 0.3);
+  border-color: rgba(56, 189, 248, 0.3);
 }
 
 .btn-wa {
-  background: var(--clr-wa);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(37,211,102,0.25);
+  background: #38bdf8;
+  color: #020618;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.25);
 }
 
 .btn-wa:hover {
-  background: #20ba5a;
+  background: #7dd3fc;
+  color: #020618;
 }
 
 .btn-lg {
@@ -1173,18 +1177,19 @@ input, select, textarea { font-family: inherit; }
   width: 52px;
   height: 52px;
   border-radius: var(--r-full);
-  background: var(--clr-wa);
-  color: #ffffff;
+  background: #38bdf8;
+  color: #020618;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 16px rgba(37,211,102,0.4);
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
   transition: transform var(--t-fast), box-shadow var(--t-fast);
 }
 
 .fab-wa:hover {
   transform: scale(1.08);
-  box-shadow: 0 6px 20px rgba(37,211,102,0.5);
+  background: #7dd3fc;
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.55);
 }
 
 .fab-wa svg {

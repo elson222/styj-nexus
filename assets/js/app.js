@@ -532,9 +532,7 @@ function initCheckoutPage() {
     });
 
     if (submitBtn) {
-      if (selected === 'paystack') {
-        submitBtn.innerHTML = `Pay Online via Paystack (${formatPrice(Cart.getTotal())}) &rarr;`;
-      } else if (selected === 'momo_pay') {
+      if (selected === 'momo_pay') {
         submitBtn.innerHTML = `Confirm Order (Direct MoMo Pay) &rarr;`;
       } else {
         submitBtn.innerHTML = `Complete Order (Pay on Delivery) &rarr;`;
@@ -605,88 +603,6 @@ function initCheckoutPage() {
     const orderItems = Cart.getItems();
     const orderTotal = Cart.getTotal();
 
-    // If Paystack is selected and a valid live or test key is set, trigger Paystack inline modal
-    const paystackKey = window.PAYSTACK_PUBLIC_KEY || 'pk_test_placeholder_styj';
-    const hasLivePaystackKey = paystackKey.startsWith('pk_live_') || (paystackKey.startsWith('pk_test_') && paystackKey !== 'pk_test_placeholder_styj');
-
-    if (paymentMethod === 'paystack' && typeof PaystackPop !== 'undefined' && hasLivePaystackKey) {
-      isSubmitting = true;
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Opening Secure Gateway…';
-      }
-
-      const today = new Date();
-      const datePart = today.toISOString().slice(0, 10).replace(/-/g, '');
-      const randPart = Math.floor(1000 + Math.random() * 9000);
-      const orderId = `ORD-${datePart}-${randPart}`;
-
-      const handler = PaystackPop.setup({
-        key: paystackKey,
-        email: `${cleanPhone}@styj.nexus`,
-        amount: Math.round(orderTotal * 100), // in pesewas
-        currency: 'GHS',
-        ref: orderId,
-        metadata: {
-          custom_fields: [
-            { display_name: "Customer Name", variable_name: "customer_name", value: data.name },
-            { display_name: "Customer Phone", variable_name: "customer_phone", value: data.phone },
-            { display_name: "Delivery Location", variable_name: "delivery_location", value: data.location }
-          ]
-        },
-        callback: async function(response) {
-          // Payment successful!
-          const orderObj = {
-            ...data,
-            orderId,
-            items: orderItems,
-            total: orderTotal,
-            timestamp: new Date().toISOString(),
-            status: 'paid_paystack',
-            paystack_ref: response.reference
-          };
-          try {
-            await fetch(FORMSPREE_ENDPOINT, {
-              method: 'POST',
-              headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-              body: JSON.stringify(orderObj),
-            });
-          } catch (e) {}
-          try {
-            await saveOrderToFirestore(orderObj);
-          } catch (e) {}
-
-          const waLink = buildOrderWhatsAppLink(orderItems, { ...data, paystack_ref: response.reference }, orderId);
-          sessionStorage.setItem('order_success', JSON.stringify({
-            orderId,
-            name: data.name,
-            phone: data.phone,
-            location: data.location,
-            delivery_type: data.delivery_type,
-            payment_method: paymentMethod,
-            paystack_ref: response.reference,
-            notes: data.notes,
-            items: orderItems,
-            total: orderTotal,
-            waLink,
-          }));
-          Cart.clear();
-          window.location.href = 'order-success.html';
-        },
-        onClose: function() {
-          isSubmitting = false;
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            updatePaymentCards();
-          }
-          showToast('Payment window closed. Order is still in your bag.');
-        }
-      });
-      handler.openIframe();
-      return;
-    }
-
-    // Default flow (Pay on Delivery or Direct MoMo Pay or Paystack Invoice)
     isSubmitting = true;
     if (submitBtn) {
       submitBtn.disabled = true;
@@ -735,6 +651,7 @@ function initCheckoutPage() {
       phone: data.phone,
       location: data.location,
       delivery_type: data.delivery_type,
+      payment_method: paymentMethod,
       notes: data.notes,
       items: orderItems,
       total: orderTotal,
@@ -823,7 +740,7 @@ function initSuccessPage() {
       <div style="margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--color-border);font-size:0.825rem;color:var(--color-text-muted);display:flex;flex-direction:column;gap:4px;">
         <div><strong>Delivery to:</strong> ${data.location || '—'}</div>
         <div><strong>Phone:</strong> ${data.phone || '—'}</div>
-        <div><strong>Method:</strong> ${data.delivery_type === 'pickup' ? 'In-Person Pickup (Accra)' : 'Doorstep Delivery (Nationwide)'}</div>
+        <div><strong>Method:</strong> ${data.delivery_type === 'pickup' ? 'In-Person Pickup (Accra)' : 'Nationwide Delivery'}</div>
       </div>
 
       ${(() => {
@@ -836,18 +753,11 @@ function initSuccessPage() {
               <div style="font-size:0.75rem;color:#cbd5e1;margin-top:4px;">Please send the MoMo transaction ID or screenshot on WhatsApp to confirm immediate dispatch.</div>
             </div>
           `;
-        } else if (data.payment_method === 'paystack') {
-          return `
-            <div style="margin-top:1rem;padding:0.875rem 1rem;border-radius:12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);font-size:0.825rem;color:#bbf7d0;line-height:1.45;">
-              <strong style="color:#22c55e;display:block;margin-bottom:2px;font-size:0.875rem;">Payment Option: Pay Online (Paystack)</strong>
-              ${data.paystack_ref ? `Paid Successfully via Paystack! &bull; Ref: <code>${data.paystack_ref}</code>` : `Order registered. Our team will send your secure Paystack invoice link via WhatsApp / SMS for instant checkout.`}
-            </div>
-          `;
         } else {
           return `
             <div style="margin-top:1rem;padding:0.875rem 1rem;border-radius:12px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);font-size:0.825rem;color:#bae6fd;line-height:1.45;">
-              <strong style="color:#38bdf8;display:block;margin-bottom:2px;font-size:0.875rem;">Payment Option: Pay on Delivery</strong>
-              Inspect your device in person (IMEI, battery health, Face ID) before releasing payment via MoMo or cash to our courier.
+              <strong style="color:#38bdf8;display:block;margin-bottom:2px;font-size:0.875rem;">Payment Option: Pay on Delivery (Nationwide)</strong>
+              Inspect your device upon delivery before releasing payment via MoMo or cash to our courier.
             </div>
           `;
         }
@@ -1132,7 +1042,7 @@ function renderSearchResults(query = '') {
           </div>
         </div>
 
-        <a id="enquiry-wa-btn" href="${initialWaLink}" target="_blank" rel="noopener" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border-radius:9999px;font-weight:700;font-size:0.875rem;text-decoration:none;background:#25d366;color:#020618;">
+        <a id="enquiry-wa-btn" href="${initialWaLink}" target="_blank" rel="noopener" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border-radius:9999px;font-weight:700;font-size:0.875rem;text-decoration:none;background:#38bdf8;color:#020618;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884zm8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           Direct WhatsApp Enquiry &rarr;
         </a>
@@ -1226,12 +1136,30 @@ function renderHomePage() {
   }
 }
 
+/* ── High-Speed Image & Asset Preloader ─────────────────── */
+function preloadProductImages() {
+  if (typeof PRODUCTS === 'undefined') return;
+  const allProds = typeof getAllProducts === 'function' ? getAllProducts() : [];
+  const isPagesDir = window.location.pathname.includes('/products/');
+
+  const runPreload = window.requestIdleCallback || ((cb) => setTimeout(cb, 50));
+  runPreload(() => {
+    allProds.forEach((p, index) => {
+      setTimeout(() => {
+        const img = new Image();
+        img.src = isPagesDir ? '../' + p.image : p.image;
+      }, index * 20);
+    });
+  });
+}
+
 /* ── DOM Ready Initializer ───────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
   updateCartBadge();
   updateCartButtons();
   initFab();
+  preloadProductImages();
 
   // Automatic Page Routing based on DOM markers and URL path
   const path = window.location.pathname;
