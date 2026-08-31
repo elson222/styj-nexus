@@ -533,9 +533,9 @@ function initCheckoutPage() {
 
     if (submitBtn) {
       if (selected === 'momo_pay') {
-        submitBtn.innerHTML = `Confirm Order (Direct MoMo Pay) &rarr;`;
+        submitBtn.innerHTML = `Place Order via MoMo &amp; Connect on WhatsApp &rarr;`;
       } else {
-        submitBtn.innerHTML = `Complete Order (Pay on Delivery) &rarr;`;
+        submitBtn.innerHTML = `Place Order (Pay on Delivery) &amp; Open WhatsApp &rarr;`;
       }
     }
   }
@@ -656,16 +656,23 @@ function initCheckoutPage() {
       items: orderItems,
       total: orderTotal,
       waLink,
+      autoOpenWa: true,
     }));
 
     Cart.clear();
+
+    // Launch WhatsApp immediately
+    try {
+      window.open(waLink, '_blank');
+    } catch (e) {}
+
     window.location.href = 'order-success.html';
   });
 }
 
 /* ── Firebase Firestore Helper ───────────────────────────── */
 async function saveOrderToFirestore(orderData) {
-  if (typeof firebase === 'undefined') return;
+  if (typeof firebase === 'undefined' || !firebase.firestore) return;
   const db = firebase.firestore();
   await db.collection('orders').add({
     ...orderData,
@@ -720,11 +727,17 @@ function initSuccessPage() {
     </span>
 
     <h1 style="font-size:clamp(1.6rem,5vw,2.2rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:0.4rem;color:var(--clr-text);">
-      Order Registered
+      Order Sent Successfully!
     </h1>
-    <p style="font-size:0.95rem;color:var(--color-text-muted);margin-bottom:1.5rem;">
-      Thank you, <strong style="color:var(--color-text);">${name}</strong>. Your order request has been received and saved.
+    <p style="font-size:0.95rem;color:var(--color-text-muted);margin-bottom:1rem;">
+      Thank you, <strong style="color:var(--color-text);">${name}</strong>. Your order has been registered on our dashboard.
     </p>
+
+    <!-- Auto WhatsApp Notice -->
+    <div id="wa-countdown-box" style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:12px;padding:0.75rem 1rem;margin-bottom:1.25rem;font-size:0.85rem;color:#bae6fd;line-height:1.45;">
+      📲 <strong>Connecting to STY. J Nexus on WhatsApp</strong> in <span id="wa-countdown" style="font-weight:800;color:#38bdf8;font-size:0.95rem;">2</span>s…<br/>
+      <span style="font-size:0.75rem;color:#94a3b8;">If WhatsApp doesn't open automatically, tap the button below to confirm with our Accra team:</span>
+    </div>
 
     <!-- Order Details Box -->
     <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);padding:1.25rem;text-align:left;margin-bottom:1.5rem;box-shadow:var(--shadow-card);">
@@ -741,36 +754,14 @@ function initSuccessPage() {
         <div><strong>Delivery to:</strong> ${data.location || '—'}</div>
         <div><strong>Phone:</strong> ${data.phone || '—'}</div>
         <div><strong>Method:</strong> ${data.delivery_type === 'pickup' ? 'In-Person Pickup (Accra)' : 'Nationwide Delivery'}</div>
+        <div><strong>Payment:</strong> ${data.payment_method === 'momo_pay' ? 'Direct MTN MoMo (055 371 4373)' : 'Pay on Delivery (Inspect First)'}</div>
       </div>
-
-      ${(() => {
-        if (data.payment_method === 'momo_pay') {
-          return `
-            <div style="margin-top:1rem;padding:0.875rem 1rem;border-radius:12px;background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.25);font-size:0.825rem;color:#fef08a;line-height:1.45;">
-              <strong style="color:#facc15;display:block;margin-bottom:4px;font-size:0.875rem;">Official STY. J Nexus MoMo Details:</strong>
-              <div>• MoMo Hotline: <strong>055 371 4373</strong></div>
-              <div>• Reference to use: <strong>${shortId}</strong></div>
-              <div style="font-size:0.75rem;color:#cbd5e1;margin-top:4px;">Please send the MoMo transaction ID or screenshot on WhatsApp to confirm immediate dispatch.</div>
-            </div>
-          `;
-        } else {
-          return `
-            <div style="margin-top:1rem;padding:0.875rem 1rem;border-radius:12px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);font-size:0.825rem;color:#bae6fd;line-height:1.45;">
-              <strong style="color:#38bdf8;display:block;margin-bottom:2px;font-size:0.875rem;">Payment Option: Pay on Delivery (Nationwide)</strong>
-              Inspect your device upon delivery before releasing payment via MoMo or cash to our courier.
-            </div>
-          `;
-        }
-      })()}
     </div>
 
-    <p style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.5rem;line-height:1.5;">
-      Connecting on WhatsApp allows our Accra store team to confirm stock availability, device condition, and coordinate your dispatch directly.
-    </p>
-
     <div style="display:flex;flex-direction:column;gap:0.75rem;">
-      <a id="success-wa-btn" href="${waLink}" target="_blank" rel="noopener" class="btn btn-wa btn-lg" style="width:100%;justify-content:center;">
-        Confirm via WhatsApp &rarr;
+      <a id="success-wa-btn" href="${waLink}" target="_blank" rel="noopener" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;font-size:1rem;padding:14px 20px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884zm8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Open WhatsApp Conversation &rarr;
       </a>
       <button type="button" id="copy-order-btn" class="btn btn-secondary btn-lg" style="width:100%;justify-content:center;">
         Copy Order Details
@@ -784,6 +775,22 @@ function initSuccessPage() {
       Need immediate phone assistance? Call: <a href="tel:0553714373" style="color:#38bdf8;font-weight:700;">055 371 4373</a>
     </p>
   `;
+
+  // Auto redirect to WhatsApp
+  if (data.autoOpenWa) {
+    data.autoOpenWa = false;
+    sessionStorage.setItem('order_success', JSON.stringify(data));
+    let remaining = 2;
+    const cdEl = document.getElementById('wa-countdown');
+    const timer = setInterval(() => {
+      remaining--;
+      if (cdEl) cdEl.textContent = remaining;
+      if (remaining <= 0) {
+        clearInterval(timer);
+        window.location.href = waLink;
+      }
+    }, 1000);
+  }
 
   // Copy order details button listener
   document.getElementById('copy-order-btn')?.addEventListener('click', () => {
@@ -1161,26 +1168,42 @@ document.addEventListener('DOMContentLoaded', () => {
   initFab();
   preloadProductImages();
 
+  // Trigger live catalog sync from Firestore in background
+  if (typeof syncLiveCatalogPrices === 'function') {
+    syncLiveCatalogPrices();
+  }
+
   // Automatic Page Routing based on DOM markers and URL path
   const path = window.location.pathname;
 
-  if (document.getElementById('home-iphones-grid')) {
-    renderHomePage();
-  } else if (path.endsWith('iphones.html') && typeof PRODUCTS !== 'undefined') {
-    renderProductsGrid('products-grid', PRODUCTS.iphones);
-    initFilterChips('products-grid', 'iphones');
-  } else if (path.endsWith('laptops.html') && typeof PRODUCTS !== 'undefined') {
-    renderProductsGrid('products-grid', PRODUCTS.laptops);
-    initFilterChips('products-grid', 'laptops');
-  } else if ((path.endsWith('accessories.html') || path.endsWith('watches.html')) && typeof PRODUCTS !== 'undefined') {
-    const combined = getProductsByCategory('accessories');
-    renderProductsGrid('products-grid', combined);
-    initFilterChips('products-grid', 'accessories');
-  } else if (path.endsWith('cart.html')) {
-    renderCartPage();
-  } else if (path.endsWith('checkout.html')) {
-    initCheckoutPage();
-  } else if (path.endsWith('order-success.html')) {
-    initSuccessPage();
+  function renderCurrentView() {
+    if (document.getElementById('home-iphones-grid')) {
+      renderHomePage();
+    } else if (path.endsWith('iphones.html') && typeof PRODUCTS !== 'undefined') {
+      renderProductsGrid('products-grid', PRODUCTS.iphones);
+      initFilterChips('products-grid', 'iphones');
+    } else if (path.endsWith('laptops.html') && typeof PRODUCTS !== 'undefined') {
+      renderProductsGrid('products-grid', PRODUCTS.laptops);
+      initFilterChips('products-grid', 'laptops');
+    } else if ((path.endsWith('accessories.html') || path.endsWith('watches.html')) && typeof PRODUCTS !== 'undefined') {
+      const combined = getProductsByCategory('accessories');
+      renderProductsGrid('products-grid', combined);
+      initFilterChips('products-grid', 'accessories');
+    } else if (path.endsWith('cart.html')) {
+      renderCartPage();
+    } else if (path.endsWith('checkout.html')) {
+      initCheckoutPage();
+    } else if (path.endsWith('order-success.html')) {
+      initSuccessPage();
+    }
   }
+
+  renderCurrentView();
+
+  // When live prices update in background from Firestore, smoothly re-render
+  window.addEventListener('catalog:updated', () => {
+    renderCurrentView();
+    updateCartBadge();
+    updateCartButtons();
+  });
 });

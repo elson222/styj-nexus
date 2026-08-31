@@ -137,16 +137,38 @@
 
       <!-- ── Products & Prices Section ── -->
       <section id="section-products" style="display:none;">
+        <!-- Products Control Card -->
         <div class="orders-card" style="margin-bottom:1.5rem;">
-          <div class="orders-header">
-            <span class="orders-title">Manage Products &amp; Prices</span>
-            <button class="action-btn" id="save-products-btn" style="background:#0a84ff;border-color:#0a84ff;color:#fff;font-weight:700;padding:0.5rem 1.2rem;">
-              Save Prices
-            </button>
+          <div class="orders-header" style="flex-wrap:wrap;gap:10px;">
+            <div>
+              <span class="orders-title" style="display:block;">Live Product Pricing</span>
+              <span style="font-size:0.75rem;color:#86868b;">All updates sync to the storefront in real-time</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+              <button class="action-btn" id="reset-products-btn" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:#a1a1a6;font-size:0.8rem;padding:0.5rem 0.9rem;">
+                Reset Defaults
+              </button>
+              <button class="action-btn" id="save-products-btn" style="background:#0a84ff;border-color:#0a84ff;color:#fff;font-weight:700;padding:0.5rem 1.4rem;box-shadow:0 4px 12px rgba(10,132,255,0.3);">
+                Save Prices Live &rarr;
+              </button>
+            </div>
           </div>
-          <div style="padding:0.75rem 1rem;font-size:0.75rem;color:#ff9f0a;background:rgba(255,159,10,0.08);border-bottom:1px solid rgba(255,255,255,0.06);">
-            Adjust price fields and click "Save Prices" to update store prices in real-time.
+
+          <!-- Product Filters & Search -->
+          <div style="padding:0.85rem 1rem;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+            <div class="tab-bar" style="margin:0;border:none;padding:0;" id="admin-prod-tabs">
+              <button class="tab active" data-cat="all">All Items</button>
+              <button class="tab" data-cat="iphones">iPhones</button>
+              <button class="tab" data-cat="laptops">Laptops</button>
+              <button class="tab" data-cat="accessories">Watches &amp; Accessories</button>
+            </div>
+            <input type="search" id="admin-products-search" placeholder="Search device (e.g. 15 Pro, M3, Dell)..." style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:6px 12px;color:#fff;font-size:0.825rem;outline:none;min-width:240px;"/>
           </div>
+
+          <div style="padding:0.6rem 1rem;font-size:0.75rem;color:#38bdf8;background:rgba(56,189,248,0.06);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:6px;">
+            <span>💡 <strong>Tip for STY. J Nexus:</strong> Type the new retail Ghana Cedi price for any variant. When finished, tap <strong>"Save Prices Live"</strong>. Storefront visitors will see the new prices immediately.</span>
+          </div>
+
           <div id="admin-products-list"></div>
         </div>
       </section>
@@ -166,18 +188,6 @@
   </div>
 
   <script>
-    function showSection(name) {
-      document.getElementById('section-orders').style.display  = name === 'orders'   ? 'block' : 'none';
-      document.getElementById('section-products').style.display = name === 'products' ? 'block' : 'none';
-      document.getElementById('section-title').textContent = name === 'orders' ? 'Orders' : 'Products & Prices';
-      document.getElementById('section-sub').textContent   = name === 'orders' ? 'Real-time order management' : 'Update product prices for your store';
-      document.querySelectorAll('.admin-nav-item').forEach((el, i) => {
-        el.classList.toggle('active', i === (name === 'orders' ? 0 : 1));
-      });
-      document.getElementById('admin-sidebar')?.classList.remove('open');
-      document.getElementById('admin-overlay')?.classList.remove('show');
-    }
-
     window.addEventListener('orders:loaded', (e) => {
       const pending = (e.detail?.orders || []).filter(o => o.status === 'pending').length;
       const badge = document.getElementById('pending-badge');

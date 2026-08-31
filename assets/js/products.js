@@ -842,36 +842,34 @@ function getProductById(id) {
 
 /* ── WhatsApp Config ──────────────────────────────────────── */
 const WA_NUMBER = '233553714373';
-const BUSINESS_NAME = 'STY. J Tech Hub';
+const BUSINESS_NAME = 'STY. J Nexus';
 
 function buildWhatsAppLink(message) {
   return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
 function buildOrderWhatsAppLink(items, customerData = {}, orderRef = '') {
-  const lines = items.map(i => `• ${i.name} (${i.variant}) ×${i.qty} — ${formatPrice(i.price * i.qty)}`);
+  const lines = items.map(i => `• *${i.name}* (${i.variant}) ×${i.qty} — ${formatPrice(i.price * i.qty)}`);
   const total = items.reduce((s, i) => s + i.price * i.qty, 0);
   const refHeader = orderRef ? ` [Order #${orderRef}]` : '';
-  let msg = `Hello ${BUSINESS_NAME}! 👋\n\nI just placed an order${refHeader}:\n\n` +
-    `🛒 *ITEMS ORDERED:*\n${lines.join('\n')}\n\n` +
-    `💰 *TOTAL:* ${formatPrice(total)}\n\n` +
+  let msg = `Hello STY. J Nexus! 👋\n\nI just placed an order on your store${refHeader}:\n\n` +
+    `🛒 *ORDER DETAILS:*\n${lines.join('\n')}\n\n` +
+    `💰 *TOTAL ESTIMATE:* ${formatPrice(total)}\n\n` +
     `👤 *CUSTOMER DETAILS:*\n` +
     `• Name: ${customerData.name || 'Customer'}\n` +
     `• Phone: ${customerData.phone || ''}\n` +
-    `• Location: ${customerData.location || ''}\n` +
-    `• Method: ${customerData.delivery_type === 'pickup' ? 'In-Person Pickup (Accra)' : 'Doorstep Delivery (Nationwide)'}\n`;
+    `• Delivery Location: ${customerData.location || ''}\n` +
+    `• Delivery Option: ${customerData.delivery_type === 'pickup' ? 'In-Person Pickup (Accra)' : 'Nationwide Delivery'}\n`;
+  
   const paymentLabels = {
-    'pay_on_delivery': 'Pay on Delivery (Accra / Tema — MoMo or Cash upon inspection)',
-    'momo_pay': 'Direct MTN MoMo Pay (Merchant Account: 055 371 4373)',
-    'paystack': 'Pay Online (Card & Mobile Money via Paystack)'
+    'pay_on_delivery': 'Pay on Delivery (Nationwide — Inspect before payment)',
+    'momo_pay': 'Direct MTN MoMo Pay (Merchant Hotline: 055 371 4373)'
   };
   const payStr = paymentLabels[customerData.payment_method] || customerData.payment_method || 'Pay on Delivery';
-  msg += `• Payment Choice: ${payStr}\n`;
-  if (customerData.paystack_ref) {
-    msg += `• Paystack Ref: ${customerData.paystack_ref}\n`;
-  }
+  msg += `• Payment Preference: ${payStr}\n`;
+
   if (customerData.notes && customerData.notes.trim()) {
-    msg += `• Notes: ${customerData.notes.trim()}\n`;
+    msg += `• Special Notes / Price Negotiation: "${customerData.notes.trim()}"\n`;
   }
   msg += `\nPlease confirm availability and dispatch schedule. Thank you!`;
   return buildWhatsAppLink(msg);
@@ -879,3 +877,62 @@ function buildOrderWhatsAppLink(items, customerData = {}, orderRef = '') {
 
 /* ── Formspree Config ─────────────────────────────────────── */
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/meaqjknp';
+
+/* ── Live Catalog Price Sync from Firestore & Local Cache ─── */
+function applyPriceMap(priceMap) {
+  if (!priceMap || typeof priceMap !== 'object') return false;
+  let changed = false;
+  Object.keys(priceMap).forEach(pid => {
+    const prod = getProductById(pid);
+    if (prod && priceMap[pid] && typeof priceMap[pid] === 'object') {
+      Object.keys(priceMap[pid]).forEach(variant => {
+        const val = Number(priceMap[pid][variant]);
+        if (!isNaN(val) && val > 0 && prod.price[variant] !== val) {
+          prod.price[variant] = val;
+          changed = true;
+        }
+      });
+    }
+  });
+  return changed;
+}
+
+// 1. Instant Synchronous Load from LocalStorage Cache
+try {
+  const cached = localStorage.getItem('styj_custom_prices');
+  if (cached) applyPriceMap(JSON.parse(cached));
+} catch (e) {}
+
+// 2. Asynchronous Live Fetch from Firestore REST API (Works Everywhere With 0 Dependencies)
+async function syncLiveCatalogPrices() {
+  try {
+    const url = 'https://firestore.googleapis.com/v1/projects/styj-nexus/databases/(default)/documents/settings/catalog';
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return;
+    const doc = await res.json();
+    if (!doc || !doc.fields) return;
+
+    let priceMap = {};
+    if (doc.fields.priceMap && doc.fields.priceMap.mapValue && doc.fields.priceMap.mapValue.fields) {
+      const pFields = doc.fields.priceMap.mapValue.fields;
+      Object.keys(pFields).forEach(pid => {
+        const vFields = pFields[pid]?.mapValue?.fields || {};
+        priceMap[pid] = {};
+        Object.keys(vFields).forEach(v => {
+          const num = vFields[v]?.integerValue || vFields[v]?.doubleValue;
+          if (num !== undefined) priceMap[pid][v] = Number(num);
+        });
+      });
+    }
+
+    if (Object.keys(priceMap).length > 0) {
+      const hasChanges = applyPriceMap(priceMap);
+      localStorage.setItem('styj_custom_prices', JSON.stringify(priceMap));
+      if (hasChanges) {
+        window.dispatchEvent(new CustomEvent('catalog:updated', { detail: { priceMap } }));
+      }
+    }
+  } catch (err) {
+    // Graceful fallback to static / local cache
+  }
+}

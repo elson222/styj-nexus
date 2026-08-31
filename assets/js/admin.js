@@ -17,10 +17,12 @@ let unsubscribe   = null; // Firestore real-time listener
 
 /* ── Auth (SHA-256 Hashed, No Plaintext Passwords) ──────── */
 // SHA-256 hashes for authorized admin credentials
-// Supports StyJ@Nexus2026!, styj2026, styj2024admin, styj2024
+// Primary: StyJ@Nexus2026! | Quick: styj2026, styjnexus, nexus2026
 const ADMIN_HASHES = new Set([
   '6b278789483e503c222f55c063c0bb678da4b0affc92bc7f4cf5aa8d0231064c', // StyJ@Nexus2026!
   '35f665197a30d22fb128e8795bb2ba19d85d70e1988f07889e484334dde06c45', // styj2026
+  '676f5a100b37917075c9894ab4f3b246ea4f0f4338e96caed05f04924fe9d629', // styjnexus
+  'ff0a5f39b703f6d02441f3b42aa02af28bc400cd8193ffd8fb1f4c4d245444c5', // nexus2026
   '56ca446b81a23cb715a3a70a82ccca0e6e272d25fc2d71fd6af9dc3b651e4eb1', // styj2024admin
   'd7c422d385b5349a0f83da77f2a09d8513043264077cc78b6a4a83c0e4478680', // styj2024
 ]);
@@ -148,10 +150,12 @@ function showSection(name) {
   } else if (name === 'products') {
     if (secOrders) secOrders.style.display = 'none';
     if (secProducts) secProducts.style.display = 'block';
-    if (title) title.textContent = 'Products & Prices';
-    if (sub) sub.textContent = 'Manage device catalog and retail GHS prices';
+    if (title) title.textContent = 'Live Product Pricing';
+    if (sub) sub.textContent = 'Manage device catalog and live retail GHS prices';
+    renderProductsAdmin();
   }
 }
+window.showSection = showSection;
 
 /* ── Dashboard Page ──────────────────────────────────────── */
 function initDashboard() {
@@ -233,6 +237,11 @@ function initDashboard() {
 
   // Product management tab
   initProductManagement();
+
+  // URL Hash routing (e.g. dashboard.html#products)
+  if (window.location.hash === '#products') {
+    showSection('products');
+  }
 }
 
 /* ── Load Orders from Firestore ──────────────────────────── */
@@ -418,93 +427,228 @@ async function updateOrderStatus(orderId, newStatus) {
 }
 
 /* ── Product Management ───────────────────────────────────── */
-function initProductManagement() {
-  const productSection = document.getElementById('products-section');
+let activeProdCat = 'all';
+let prodSearchQuery = '';
+
+async function initProductManagement() {
+  const productSection = document.getElementById('section-products');
   if (!productSection) return;
+
+  // First, fetch existing custom prices from Firestore or localStorage
+  await loadCustomPrices();
 
   renderProductsAdmin();
 
+  // Category filter tabs
+  document.querySelectorAll('#admin-prod-tabs .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#admin-prod-tabs .tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeProdCat = tab.dataset.cat;
+      renderProductsAdmin();
+    });
+  });
+
+  // Search filter
+  document.getElementById('admin-products-search')?.addEventListener('input', (e) => {
+    prodSearchQuery = (e.target.value || '').toLowerCase().trim();
+    renderProductsAdmin();
+  });
+
+  // Save button
   document.getElementById('save-products-btn')?.addEventListener('click', saveProductsToFirestore);
+
+  // Reset defaults button
+  document.getElementById('reset-products-btn')?.addEventListener('click', resetProductsToDefaults);
 }
 
 function renderProductsAdmin() {
   const container = document.getElementById('admin-products-list');
   if (!container) return;
 
-  const allProds = getAllProducts();
-  container.innerHTML = allProds.map(p => `
-    <div class="admin-product-row" data-product-id="${p.id}">
-      <img src="${p.image}" alt="${p.name}" style="width:48px;height:48px;object-fit:contain;border-radius:10px;background:rgba(255,255,255,0.05);" onerror="this.src='${p.imageFallback}'">
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;font-size:0.875rem;color:#f5f5f7;margin-bottom:0.2rem;">${p.name}</div>
-        <div style="font-size:0.75rem;color:#86868b;">${p.category}</div>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
-        ${p.storage.map(s => `
-          <label style="display:flex;flex-direction:column;gap:2px;align-items:flex-end;">
-            <span style="font-size:0.65rem;color:#636366;">${s}</span>
-            <input type="number" class="price-input" style="width:90px;padding:0.3rem 0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#f5f5f7;font-size:0.8rem;font-family:inherit;outline:none;"
-              value="${p.price[s]}" data-product="${p.id}" data-variant="${s}" placeholder="${p.price[s]}">
-          </label>
-        `).join('')}
-      </div>
-    </div>
-  `).join('');
+  let prods = getAllProducts();
 
-  // Style rows
-  container.querySelectorAll('.admin-product-row').forEach(row => {
-    Object.assign(row.style, {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-      padding: '0.75rem 1rem',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
-      flexWrap: 'wrap',
-    });
-  });
+  // Category filter
+  if (activeProdCat === 'iphones') {
+    prods = prods.filter(p => p.category === 'iphones');
+  } else if (activeProdCat === 'laptops') {
+    prods = prods.filter(p => p.category === 'laptops');
+  } else if (activeProdCat === 'accessories') {
+    prods = prods.filter(p => p.category === 'accessories' || p.category === 'watches');
+  }
+
+  // Search filter
+  if (prodSearchQuery) {
+    prods = prods.filter(p =>
+      p.name.toLowerCase().includes(prodSearchQuery) ||
+      (p.desc || '').toLowerCase().includes(prodSearchQuery) ||
+      p.id.toLowerCase().includes(prodSearchQuery)
+    );
+  }
+
+  if (prods.length === 0) {
+    container.innerHTML = `
+      <div style="padding:3rem 1rem;text-align:center;color:#86868b;">
+        <div style="font-size:1.5rem;margin-bottom:0.5rem;">🔍</div>
+        <div style="font-weight:700;color:#f5f5f7;">No matching devices found</div>
+        <div style="font-size:0.8rem;margin-top:0.25rem;">Try adjusting your search query or switching tabs.</div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = prods.map(p => {
+    const isPagesDir = window.location.pathname.includes('/admin/');
+    const resolvedImg = isPagesDir ? '../' + p.image : p.image;
+    const resolvedFallback = isPagesDir ? '../' + p.imageFallback : p.imageFallback;
+
+    return `
+      <div class="admin-product-row" data-product-id="${p.id}" style="display:flex;align-items:center;gap:1rem;padding:0.9rem 1.15rem;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;background:rgba(255,255,255,0.01);">
+        <img src="${resolvedImg}" alt="${p.name}" style="width:48px;height:48px;object-fit:contain;border-radius:10px;background:#ffffff;padding:4px;flex-shrink:0;" onerror="this.src='${resolvedFallback}'">
+        <div style="flex:1;min-width:180px;">
+          <div style="font-weight:800;font-size:0.9rem;color:#f5f5f7;line-height:1.3;">${p.name}</div>
+          <div style="font-size:0.75rem;color:#86868b;margin-top:2px;">
+            <span style="text-transform:uppercase;letter-spacing:0.04em;color:#38bdf8;font-weight:700;">${p.category}</span> &bull; ${p.storage.length} variant${p.storage.length > 1 ? 's' : ''}
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;margin-left:auto;">
+          ${p.storage.map(s => {
+            const currentPrice = p.price[s] !== undefined ? p.price[s] : '';
+            return `
+              <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:4px 8px;">
+                <span style="font-size:0.68rem;color:#94a3b8;font-weight:700;">${s}</span>
+                <div style="display:flex;align-items:center;gap:3px;">
+                  <span style="font-size:0.75rem;color:#38bdf8;font-weight:700;">₵</span>
+                  <input type="number" class="price-input" style="width:85px;padding:0.25rem 0.4rem;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.18);border-radius:6px;color:#ffffff;font-size:0.825rem;font-weight:700;font-family:inherit;outline:none;"
+                    value="${currentPrice}" data-product="${p.id}" data-variant="${s}" placeholder="${currentPrice}">
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 async function saveProductsToFirestore() {
+  const saveBtn = document.getElementById('save-products-btn');
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving Prices…';
+  }
+
   // Update in-memory PRODUCTS object from inputs
+  let updatedCount = 0;
+  const priceMap = {};
+
   document.querySelectorAll('.price-input').forEach(input => {
     const { product: pid, variant } = input.dataset;
     const val = parseFloat(input.value);
-    if (!isNaN(val)) {
+    if (!isNaN(val) && val > 0) {
       const prod = getProductById(pid);
-      if (prod) prod.price[variant] = val;
+      if (prod) {
+        prod.price[variant] = val;
+        if (!priceMap[pid]) priceMap[pid] = {};
+        priceMap[pid][variant] = val;
+        updatedCount++;
+      }
     }
   });
 
-  // Save to Firestore as a 'catalog' document
+  // Save to localStorage as instant cache
+  try {
+    localStorage.setItem('styj_custom_prices', JSON.stringify(priceMap));
+  } catch (e) {}
+
+  // Save to Firestore as settings/catalog
   try {
     const db = firebase.firestore();
-    // Serialize only id+price+storage fields for each product
     const snapshot = getAllProducts().map(p => ({
       id:      p.id,
       name:    p.name,
       price:   p.price,
       storage: p.storage,
     }));
-    await db.collection('settings').doc('catalog').set({ products: snapshot, updatedAt: new Date() });
-    showAdminToast('✅ Prices saved!');
+    await db.collection('settings').doc('catalog').set({
+      products: snapshot,
+      priceMap: priceMap,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: 'admin'
+    });
+    showAdminToast('✅ Prices saved live! Storefront is updated.');
   } catch (e) {
-    showAdminToast('❌ Could not save. Check Firebase.', 'error');
-    console.error(e);
+    console.error('Firestore save error:', e);
+    showAdminToast('⚠️ Saved locally. Check database connection.', 'error');
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = 'Save Prices Live &rarr;';
+    }
   }
 }
 
-/* ── Load custom prices from Firestore on storefront ─────── */
-async function loadCustomPrices() {
+async function resetProductsToDefaults() {
+  if (!confirm('Are you sure you want to reset all product prices to original defaults?')) return;
   try {
+    localStorage.removeItem('styj_custom_prices');
     const db = firebase.firestore();
-    const doc = await db.collection('settings').doc('catalog').get();
-    if (!doc.exists) return;
-    const { products } = doc.data();
-    products.forEach(saved => {
-      const prod = getProductById(saved.id);
-      if (prod) prod.price = saved.price;
-    });
-  } catch {}
+    await db.collection('settings').doc('catalog').delete();
+    showAdminToast('Defaults restored. Reloading…');
+    setTimeout(() => window.location.reload(), 800);
+  } catch (e) {
+    localStorage.removeItem('styj_custom_prices');
+    window.location.reload();
+  }
+}
+
+/* ── Load custom prices from Firestore / localStorage ─────── */
+async function loadCustomPrices() {
+  // 1. First check local cache for 0ms render
+  try {
+    const cached = localStorage.getItem('styj_custom_prices');
+    if (cached) {
+      const priceMap = JSON.parse(cached);
+      Object.keys(priceMap).forEach(pid => {
+        const prod = getProductById(pid);
+        if (prod && priceMap[pid]) {
+          prod.price = { ...prod.price, ...priceMap[pid] };
+        }
+      });
+    }
+  } catch (e) {}
+
+  // 2. Fetch live settings/catalog from Firestore
+  try {
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      const db = firebase.firestore();
+      const doc = await db.collection('settings').doc('catalog').get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data.priceMap) {
+          Object.keys(data.priceMap).forEach(pid => {
+            const prod = getProductById(pid);
+            if (prod && data.priceMap[pid]) {
+              prod.price = { ...prod.price, ...data.priceMap[pid] };
+            }
+          });
+          localStorage.setItem('styj_custom_prices', JSON.stringify(data.priceMap));
+        } else if (data.products && Array.isArray(data.products)) {
+          const map = {};
+          data.products.forEach(p => {
+            const prod = getProductById(p.id);
+            if (prod && p.price) {
+              prod.price = { ...prod.price, ...p.price };
+              map[p.id] = prod.price;
+            }
+          });
+          localStorage.setItem('styj_custom_prices', JSON.stringify(map));
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Could not fetch custom prices:', e);
+  }
 }
 
 /* ── Admin Toast ──────────────────────────────────────────── */
