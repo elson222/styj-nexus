@@ -35,8 +35,8 @@ const PRODUCTS = {
       condition: 'Brand New (Factory Sealed)',
       storage: ['128GB', '256GB', '512GB', '1TB'],
       price: { '128GB': 22500, '256GB': 24800, '512GB': 27500, '1TB': 31000 },
-      image: 'assets/images/products/iphone-17-pro.png',
-      imageFallback: 'assets/images/products/iphone-17-pro.png',
+      image: 'assets/images/products/iphone-17-pro-max.png',
+      imageFallback: 'assets/images/products/iphone-17-pro-max.png',
       colors: ['Space Black', 'Cosmic Titanium', 'Desert Gold', 'Silver'],
       featured: true,
     },
@@ -936,3 +936,15 @@ async function syncLiveCatalogPrices() {
     // Graceful fallback to static / local cache
   }
 }
+
+// 3. Instant In-Memory Image Preload Loop (Runs Immediately on Script Parse)
+(function warmProductImageCache() {
+  if (typeof window === 'undefined') return;
+  const isPagesDir = window.location.pathname.includes('/products/') || window.location.pathname.includes('/admin/');
+  const prefix = isPagesDir ? '../' : '';
+  const allProds = getAllProducts();
+  allProds.forEach(p => {
+    const img = new Image();
+    img.src = prefix + p.image;
+  });
+})();

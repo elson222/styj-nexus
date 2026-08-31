@@ -647,6 +647,16 @@ input, select, textarea { font-family: inherit; }
     grid-template-columns: repeat(4, 1fr);
     gap: var(--sp-6);
   }
+/* ── Smooth Apple-Grade Product Card Animation ─────────── */
+@keyframes cardReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .product-card {
@@ -659,15 +669,16 @@ input, select, textarea { font-family: inherit; }
   flex-direction: column;
   transition: transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base);
   position: relative;
-  content-visibility: auto;
-  contain-intrinsic-size: 0 280px;
   transform: translateZ(0);
   touch-action: manipulation;
+  animation: cardReveal 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--card-idx, 0) * 20ms);
+  will-change: transform, opacity;
 }
 
 .product-card:hover {
   transform: translateY(-4px) translateZ(0);
-  border-color: rgba(0, 186, 167, 0.35);
+  border-color: rgba(56, 189, 248, 0.4);
   box-shadow: var(--shadow-card-hover);
 }
 
@@ -696,7 +707,12 @@ input, select, textarea { font-family: inherit; }
   object-fit: contain;
   background: transparent;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.1));
-  transition: transform var(--t-base);
+  opacity: 0;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform var(--t-base);
+}
+
+.product-card__image.img-loaded {
+  opacity: 1;
 }
 
 @media (min-width: 768px) {
@@ -704,7 +720,7 @@ input, select, textarea { font-family: inherit; }
 }
 
 .product-card:hover .product-card__image {
-  transform: scale(1.04);
+  transform: scale(1.05);
 }
 
 .product-card__badge {

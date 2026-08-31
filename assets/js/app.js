@@ -133,7 +133,7 @@ function initNavbar() {
 }
 
 /* ── Product Card Builder (Evanex-Inspired Split Card) ── */
-function buildProductCard(product) {
+function buildProductCard(product, idx = 0) {
   const minPrice = getMinPrice(product);
   const defaultVariant = product.storage ? product.storage[0] : '';
   const hasMultiple = product.storage && product.storage.length > 1;
@@ -141,6 +141,7 @@ function buildProductCard(product) {
   const card = document.createElement('div');
   card.className = `product-card`;
   card.dataset.productId = product.id;
+  card.style.setProperty('--card-idx', idx);
 
   const resolvedImg = resolveAsset(product.image);
   const resolvedFallback = resolveAsset(product.imageFallback);
@@ -150,12 +151,6 @@ function buildProductCard(product) {
   const inCartContent = inCartItem
     ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>In Cart (${inCartItem.qty})`
     : '+ Add';
-
-  const categoryTag = product.category === 'iphones'
-    ? (defaultVariant ? defaultVariant + ' · VERIFIED' : 'APPLE IPHONE')
-    : (product.category === 'laptops'
-      ? (product.storage ? product.storage[0] + ' · PRO LAPTOP' : 'LAPTOP')
-      : (product.category === 'watches' ? 'GPS + CELLULAR' : 'GENUINE APPLE'));
 
   card.innerHTML = `
     <div class="product-card__image-wrap" role="button" tabindex="0" aria-label="View ${product.name} specifications">
@@ -170,10 +165,10 @@ function buildProductCard(product) {
         class="product-card__image"
         src="${resolvedImg}"
         alt="${product.name}"
-        loading="lazy"
         decoding="async"
         width="220"
         height="220"
+        onload="this.classList.add('img-loaded')"
         onerror="this.src='${resolvedFallback}'"
       />
     </div>
@@ -248,77 +243,76 @@ function openProductModal(productId) {
           if (part.toLowerCase().includes('bionic') || part.toLowerCase().includes('chip') || part.toLowerCase().includes('intel') || part.toLowerCase().includes('amd') || part.toLowerCase().includes('ryzen') || part.toLowerCase().includes('m1') || part.toLowerCase().includes('m2') || part.toLowerCase().includes('m3') || part.toLowerCase().includes('m4')) label = 'Processor';
           else if (part.includes('″') || part.toLowerCase().includes('display') || part.toLowerCase().includes('retina') || part.toLowerCase().includes('oled')) label = 'Display';
           else if (part.toLowerCase().includes('camera') || part.toLowerCase().includes('mp')) label = 'Camera';
-          else if (part.toLowerCase().includes('battery')) label = 'Battery';
-          else if (part.toLowerCase().includes('ram')) label = 'Memory';
-          return `<tr><td class="spec-label">${label}</td><td class="spec-value">${part}</td></tr>`;
+          else if (part.toLowerCase().includes('battery') || part.toLowerCase().includes('day')) label = 'Battery';
+          else if (part.toLowerCase().includes('titanium') || part.toLowerCase().includes('aluminum') || part.toLowerCase().includes('ceramic') || part.toLowerCase().includes('unibody')) label = 'Build';
+          else if (part.toLowerCase().includes('water') || part.toLowerCase().includes('ip68') || part.toLowerCase().includes('50m')) label = 'Durability';
+          return `<tr><td class="specs-table__label">${label}</td><td class="specs-table__value">${part}</td></tr>`;
         }).join('')}
-        <tr><td class="spec-label">Verification</td><td class="spec-value">Clean IMEI • Free Testing Upon Handover</td></tr>
-      </table>`
-    : '';
-
-  // Storage pills
-  const variantsHtml = product.storage && product.storage.length > 1
-    ? `<div class="modal-variants-label">Select Storage / Model:</div>
-       <div class="modal-variants">
-         ${product.storage.map((s, idx) => `
-           <button class="variant-pill ${idx === 0 ? 'active' : ''}" data-variant="${s}">
-             ${s}
-           </button>
-         `).join('')}
-       </div>`
+       </table>`
     : '';
 
   modalOverlay.innerHTML = `
     <div class="modal-sheet">
-      <div class="modal-sheet__header" style="justify-content:flex-end;">
-        <button class="modal-sheet__close" id="modal-close-btn" aria-label="Close modal">&times;</button>
-      </div>
-
-      <div class="modal-sheet__image-wrap">
-        <img class="modal-sheet__image" src="${resolvedImg}" alt="${product.name}" />
-      </div>
-
-      <h2 class="modal-sheet__title">${product.name}</h2>
-
-      ${specsHtml}
-      ${variantsHtml}
-
-      <div class="modal-footer-price">
-        <span class="label">Price in Ghana:</span>
-        <span class="price" id="modal-price">${formatPrice(currentPrice)}</span>
-      </div>
-
-      <button class="btn btn-primary btn-lg" id="modal-add-btn" style="width:100%;margin-bottom:0.5rem;">
-        Add to Cart
+      <div class="modal-sheet__handle"></div>
+      <button class="modal-close-btn" id="modal-close-btn" aria-label="Close modal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
 
-      <button type="button" class="btn btn-secondary" onclick="openPolicyModal('returns')" style="width:100%;margin-bottom:0.75rem;font-size:0.8rem;padding:8px 14px;">
-        🔄 48-Hour Return &amp; Exchange Terms
-      </button>
+      <div class="modal-sheet__content">
+        <div class="modal-sheet__media">
+          <img src="${resolvedImg}" alt="${product.name}" class="modal-sheet__image" onerror="this.src='${resolveAsset(product.imageFallback)}'"/>
+        </div>
 
-      <div style="text-align:center;">
-        <a href="${buildWhatsAppLink(`Hi STY. J Nexus! I am asking about the ${product.name} (${selectedVariant}).`)}"
-           target="_blank" rel="noopener"
-           style="font-size:0.8rem;color:var(--clr-text-2);text-decoration:underline;">
-          Have questions? Chat directly on WhatsApp
-        </a>
+        <div class="modal-sheet__details">
+          <div class="modal-category">${product.category.toUpperCase()}</div>
+          <h2 class="modal-title">${product.name}</h2>
+          <p class="modal-desc">${product.desc || ''}</p>
+
+          ${product.storage && product.storage.length > 0 ? `
+            <div class="modal-variant-section">
+              <label class="modal-label">Select Capacity / Variant:</label>
+              <div class="variant-pills">
+                ${product.storage.map((v, i) => `
+                  <button type="button" class="variant-pill ${i === 0 ? 'active' : ''}" data-variant="${v}">
+                    ${v}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="modal-specs-section">
+            <label class="modal-label">Key Specifications:</label>
+            ${specsHtml}
+          </div>
+
+          <div class="modal-footer-price">
+            <span class="label">Total Price:</span>
+            <span class="price" id="modal-price">${formatPrice(currentPrice)}</span>
+          </div>
+
+          <button class="btn btn-primary btn-lg" id="modal-add-btn" style="width:100%;">
+            + Add to Bag
+          </button>
+        </div>
       </div>
     </div>
   `;
 
+  const modalBtn = document.getElementById('modal-add-btn');
   const updateModalBtnState = () => {
-    const modalBtn = document.getElementById('modal-add-btn');
-    if (!modalBtn) return;
-    const items = Cart.getItems();
-    const exist = items.find(i => i.id === product.id && i.variant === selectedVariant);
-    if (exist) {
-      modalBtn.classList.add('in-cart');
-      modalBtn.style.background = 'var(--clr-green)';
-      modalBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>In Cart (${exist.qty}) · Add Another`;
+    const existing = Cart.getItems().find(i => i.id === product.id && i.variant === selectedVariant);
+    if (existing) {
+      modalBtn.style.background = '#38bdf8';
+      modalBtn.style.color = '#020618';
+      modalBtn.innerHTML = `✓ In Bag (${existing.qty})`;
     } else {
-      modalBtn.classList.remove('in-cart');
       modalBtn.style.background = '';
-      modalBtn.textContent = 'Add to Cart';
+      modalBtn.style.color = '';
+      modalBtn.textContent = '+ Add to Bag';
     }
   };
 
@@ -364,10 +358,19 @@ function closeProductModal() {
 function renderProductsGrid(containerId, products) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  container.innerHTML = '';
-  products.forEach(p => {
-    container.appendChild(buildProductCard(p));
+  
+  const frag = document.createDocumentFragment();
+  products.forEach((p, idx) => {
+    frag.appendChild(buildProductCard(p, idx));
   });
+  container.innerHTML = '';
+  container.appendChild(frag);
+
+  // Immediately mark images as loaded if cached
+  container.querySelectorAll('.product-card__image').forEach(img => {
+    if (img.complete) img.classList.add('img-loaded');
+  });
+
   updateCartButtons();
 }
 
@@ -375,10 +378,11 @@ function renderCarousel(containerId, products) {
   renderProductsGrid(containerId, products);
 }
 
-/* ── Filter Chips ─────────────────────────────────────────── */
+/* ── Filter Chips with Smooth Cross-Fade ──────────────────── */
 function initFilterChips(gridId, category) {
   document.querySelectorAll('.filter-chip').forEach(chip => {
     chip.addEventListener('click', () => {
+      if (chip.classList.contains('active')) return;
       document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       const filter = chip.dataset.filter;
@@ -395,7 +399,20 @@ function initFilterChips(gridId, category) {
           return true;
         });
       }
-      renderProductsGrid(gridId, products);
+
+      const container = document.getElementById(gridId);
+      if (container) {
+        container.style.opacity = '0.35';
+        container.style.transform = 'translateY(6px)';
+        container.style.transition = 'opacity 0.14s ease, transform 0.14s ease';
+        setTimeout(() => {
+          renderProductsGrid(gridId, products);
+          container.style.opacity = '1';
+          container.style.transform = 'translateY(0)';
+        }, 140);
+      } else {
+        renderProductsGrid(gridId, products);
+      }
     });
   });
 }
